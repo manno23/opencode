@@ -1,0 +1,23 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+const apiUrl = import.meta.env.VITE_API_URL;
+const response = await fetch(`${apiUrl}/session/shared`);
+const shares = await response.json();
+---
+<StarlightPage
+  frontmatter={{
+    title: 'Shared Sessions',
+    pagefind: false,
+    template: 'splash',
+    tableOfContents: false,
+  }}
+>
+  <h1>Shared Sessions</h1>
+  <ul>
+    {shares.map(share => (
+      <li>
+        <a href={`/s/${share.id}`}>{share.title}</a> - Updated: {new Date(share.time.updated).toLocaleString()}
+      </li>
+    ))}
+  </ul>
+</StarlightPage>

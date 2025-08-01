@@ -5,7 +5,8 @@ node_modules
 .idea
 .vscode
 openapi.json
-playground
+<<<<<<< HEAD
+scratch
 
 # Our launcher for now
 opencode-run
@@ -18,3 +19,6 @@ wrangler.toml
 
 # Build artifacts
 opencode-self-hosted/package-lock.json
+=======
+playground
+>>>>>>> dev

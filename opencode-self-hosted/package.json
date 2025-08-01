@@ -1,0 +1,11 @@
+{
+  "name": "opencode-self-hosted",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy --env production"
+  },
+  "dependencies": {
+    "@types/node": "^24.1.0",
+    "hono": "^4.0.0"
+  }
+}

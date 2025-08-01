@@ -1,0 +1,39 @@
+{
+	"name": "opencode-api-prod",
+	"main": "api.ts",
+	"compatibility_date": "2025-05-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"routes": [
+		{
+			"pattern": "api.opencode.j9xym.com/*",
+			"zone_name": "j9xym.com",
+		},
+		{
+			"pattern": "opencode.j9xym.com/*",
+			"zone_name": "j9xym.com",
+		},
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SYNC_SERVER",
+				"class_name": "SyncServer",
+			},
+		],
+	},
+	"r2_buckets": [
+		{
+			"binding": "Bucket",
+			"bucket_name": "opencode-storage",
+		},
+	],
+	"vars": {
+		"WEB_DOMAIN": "opencode.j9xym.com",
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["SyncServer"],
+		},
+	],
+}

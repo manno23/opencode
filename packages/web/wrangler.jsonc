@@ -1,0 +1,17 @@
+{
+  "name": "opencode-web",
+  "main": "dist/_worker.js/index.js",
+  "compatibility_date": "2025-05-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "routes": [
+    {
+      "pattern": "opencode.j9xym.com/*",
+      "zone_name": "j9xym.com",
+    }
+  ],
+  "vars": {
+    "VITE_API_URL": "https://api.opencode.j9xym.com",
+  }
+}
