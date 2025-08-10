@@ -28,7 +28,9 @@
     }
   },
   "dependencies": {
-    "pulumi-stripe": "0.0.24"
+    "opencode": ".",
+    "pulumi-stripe": "0.0.24",
+    "wrangler2": "1.0.0"
   },
   "devDependencies": {
     "prettier": "3.5.3",
