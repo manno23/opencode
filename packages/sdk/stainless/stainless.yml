@@ -22,7 +22,7 @@ targets:
       pypi: true
 
 environments:
-  production: http://localhost:54321
+  production: https://api.opencode.j9xym.com
 
 streaming:
   on_event:
