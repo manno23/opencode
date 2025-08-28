@@ -1,14 +1,43 @@
-# OpenCode Go SDK
+# Opencode Go SDK
 
-Modern Go SDK for the OpenCode API, generated using [ogen](https://github.com/ogen-go/ogen).
+The Opencode Go library provides convenient access to the [Opencode REST API](https://opencode.ai/docs) from applications written in Go using a hybrid generation approach that combines automated type generation with manually crafted service architecture.
+
+## Generation approach
+
+This SDK uses a **hybrid generation approach** that balances automation with control:
+
+- **Types**: Auto-generated using `oapi-codegen` from OpenAPI specification
+- **Services**: Manual implementation following proven Stainless SDK patterns
+- **Integration**: Seamless compatibility layer for existing TUI applications
+
+---
+
+## Requirements
+
+- **Go 1.24+** (uses Go workspace features)
+- **Node.js/Bun** (for OpenAPI spec generation)
+- **oapi-codegen v2.5.0+** (automatically installed during generation)
+
+---
 
 ## Installation
 
-```bash
-go get github.com/sst/opencode-sdk-go
+For standalone usage:
+
+```go
+go get git.j9xym.com/opencode-api-go
 ```
 
-## Usage
+For development within the opencode monorepo, use the Go workspace:
+
+```bash
+# From project root
+go work sync
+```
+
+---
+
+## Quick start
 
 ```go
 package main
@@ -16,219 +45,330 @@ package main
 import (
     "context"
     "fmt"
-    "log"
-
-    opencode "github.com/sst/opencode-sdk-go"
+    "git.j9xym.com/opencode-api-go"
 )
 
 func main() {
-    client, err := opencode.NewClient("http://localhost:3000")
+    client := opencode.NewClient()
+
+    sessions, err := client.Session.List(context.TODO())
     if err != nil {
-        log.Fatal(err)
+        panic(err)
     }
-
-    // Use the client
-    ctx := context.Background()
-
-    // Access the raw ogen client for full API access
-    raw := client.Raw()
-
-    // Example API call (adjust based on your actual API)
-    // resp, err := raw.ConfigGet(ctx)
-    // if err != nil {
-    //     log.Fatal(err)
-    // }
-    // fmt.Printf("Config: %+v\n", resp)
+    fmt.Printf("Sessions: %+v\n", sessions)
 }
 ```
 
-## Features
+---
 
-- **Type-safe**: Full TypeScript-level type safety in Go using generics
-- **Modern**: Built with Go 1.21+ features
-- **Fast**: Uses ogen's high-performance JSON codec
-- **Flexible**: Raw client access for advanced usage
-- **Zero-reflection**: Compile-time code generation
+## Development environment
 
-## API Documentation
+### Workspace setup
 
-See the generated client in the `generated/` directory for all available methods and types.
+The project uses Go workspaces for development. The workspace is configured in the root `go.work` file:
 
-## Development
+```
+use ./sdk/go
+use ./packages/tui
+```
 
-Short guide to generate, clean, and integrate the Go SDK for local development.
+**Initialize workspace:**
 
-Prepare environment
+```bash
+go work init
+go work use ./sdk/go ./packages/tui
+```
 
-Install and configure Go and required tools.
-Use Go 1.24+ toolchain and ensure GOBIN is set if you install tools into your local bin.
+**Sync workspace after changes:**
 
-Commands:
-
-- go version
-- export GOBIN="$HOME/go/bin" (if needed)
-- go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+```bash
+go work sync
+```
 
 ---
 
-Use go workspaces
+## SDK generation workflow
 
-Use a go.work file to tie the SDK, TUI and local packages together.
-Add local modules with use directives so builds resolve replace paths automatically.
+### Generate from scratch
 
-Example workflow:
+**Quick generation:**
 
-- From repo root run: go work init ./sdk/go ./packages/tui ./packages/sdk/go
-- Run: go work sync
+```bash
+./scripts/generate-go-sdk.sh
+```
 
-This ensures local replace directives are unnecessary and module resolution is consistent across builds.
+**Manual steps:**
 
----
+```bash
+# 1. Generate OpenAPI spec
+bun run --conditions=development packages/opencode/src/index.ts generate > schema/openapi.json
 
-Clean before fresh build
+# 2. Bundle specification
+npx redocly bundle schema/openapi.json -o schema/openapi.bundled.json --dereferenced
 
-Always reset generated artifacts and temporary module state before regenerating or rebuilding.
-Steps:
+# 3. Install generation tools
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 
-- Remove prior generated files: rm -rf sdk/go/types.gen.go sdk/go/generated/\*
-- Remove module cache in workspace if needed: go clean -modcache
-- Optionally restore SDK folder from .go-cleanup-backup-\* if present
-- Re-run go work sync after cleanup
+# 4. Generate types
+oapi-codegen -generate types -package opencode schema/openapi.bundled.json > sdk/go/types.gen.go
 
----
+# 5. Copy service layer
+rsync -a --exclude 'go.mod' packages/sdk/go/ sdk/go/
 
-Generate OpenAPI spec
+# 6. Update module paths
+find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
 
-Produce a code-first OpenAPI spec from the TypeScript API, then bundle it for generator compatibility.
+# 7. Tidy and build
+cd sdk/go && go mod tidy && go build ./...
+```
 
-Commands:
+### Clean build
 
-- bun run --conditions=development packages/opencode/src/index.ts generate > schema/openapi.json
-- npx redocly bundle schema/openapi.json -o schema/openapi.bundled.json --dereferenced
+**Full cleanup:**
 
-Notes:
+```bash
+./scripts/clean-go-sdk.sh --yes
+```
 
-- The bundled, dereferenced JSON is required by oapi-codegen and other generators.
-- Verify the spec with npx redocly lint schema/openapi.json
+**Manual cleanup:**
 
----
+```bash
+# Remove generated artifacts
+rm -f sdk/go/types.gen.go
+rm -rf sdk/go/generated
 
-Generate Go types
+# Clean module caches
+go clean -modcache
 
-Use oapi-codegen to create types-only Go sources, then keep service layer manual.
-
-Commands:
-
-- go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-- oapi-codegen -generate types -package opencode schema/openapi.bundled.json > sdk/go/types.gen.go
-
-Notes:
-
-- Generate types only to avoid discriminator and complex generation pitfalls.
-- Commit types.gen.go only as part of the SDK generation flow, not to hand-edit it.
-
----
-
-Manual service layer
-
-Copy or implement a lightweight, Stainless-inspired service layer that composes the generated types into usable client services.
-Typical structure:
-
-- client.go (Client struct + common request options)
-- app.go, session.go, event.go, file.go, find.go (service methods)
-- option/ and internal/ helper packages
-
-Reasons:
-
-- Manual services preserve ergonomics, error handling and patterns from Stainless.
-- They allow precise control of request options, retries, telemetry, and auth.
+# Sync workspace
+go work sync
+```
 
 ---
 
-Differences from Stainless SDK
+## Architecture overview
 
-Key differences to know:
+### Hybrid approach benefits
 
-- Generation target: we generate types-only with oapi-codegen, then hand-write services; Stainless historically used a full-code generation approach.
-- Discriminator handling: types-only avoids discriminator edge cases that full generators sometimes mishandle.
-- Module naming and layout: the generated SDK in this repo uses a local module path (git.j9xym.com/opencode-api-go) and a workspace replace during development.
-- Service surface: Stainless SDK might expose different helper primitives and higher-level conveniences not present initially; the hybrid approach gives flexibility but requires implementing some helpers manually.
-- Tests and examples: Stainless packages include example clients; mirror those patterns when creating the service layer.
+- ✅ **Type safety**: Auto-generated types from OpenAPI spec
+- ✅ **Control**: Manual service layer for optimal developer experience
+- ✅ **Compatibility**: Adaptor layer for existing TUI integration
+- ✅ **Maintenance**: No vendor lock-in, open source toolchain
 
----
+### Generated structure
 
-Go module and replace strategy
-
-Two approaches for local development:
-
-1. Replace in go.mod (older style)
-
-- packages/tui/go.mod contains:
-  replace git.j9xym.com/opencode-api-go => ../../sdk/go
-
-2. Workspace-first (preferred)
-
-- Use go.work to reference all local modules and avoid repeated replace directives.
-- go.work is more robust for multi-module workspaces and CI.
-
-Choose workspace-first during active development.
-
----
-
-Integration with TUI build
-
-How the SDK and TUI cooperate:
-
-- TUI imports the SDK module for API types and client services.
-- During local development, the TUI resolves the SDK module via go.work or replace directive to the repo-local sdk/go.
-- After generation, ensure sdk/go builds (go build ./...) before attempting to build the TUI to catch SDK regressions early.
-- Maintain backward compatibility (or provide a compatibility layer) when SDK surface changes to avoid breaking the TUI.
-
-Practical sequence:
-
-1. Generate bundled OpenAPI spec
-2. Generate types: sdk/go/types.gen.go
-3. Update or copy manual service files into sdk/go/
-4. go work sync (or use replace)
-5. cd sdk/go && go mod tidy && go build ./...
-6. cd packages/tui && go mod tidy && go build ./...
+```
+sdk/go/
+├── types.gen.go          # Auto-generated types (oapi-codegen)
+├── client.go             # Main client (manual)
+├── services.go           # Service registry (manual)
+├── app.go                # App service (manual)
+├── session.go            # Session service (manual)
+├── event.go              # Event service (manual)
+├── file.go               # File service (manual)
+├── find.go               # Find service (manual)
+├── compat/               # TUI compatibility layer
+│   ├── compat.go         # Type adaptors
+│   └── README.md         # Usage guide
+├── internal/             # Internal utilities
+└── shared/               # Shared types
+```
 
 ---
 
-Compatibility and maintenance notes
+## TUI integration
 
-- API breaks: regenerating the SDK may change types and function signatures. Provide a migration/compatibility layer in sdk/go/compat if breaking changes are expected.
-- Tests: run unit tests for both sdk/go and packages/tui after generation.
-- Backups: keep .go-cleanup-backup-\* for safe rollbacks when regenerating.
-- Linting/formatting: run go fmt and go vet across modules after generation.
-- Commit policy: generated artifacts that are intended to be checked in should be clearly documented and regenerated via scripts; avoid manual edits to generated files.
+### Compatibility layer
+
+The `compat` package provides adaptors for TUI integration:
+
+```go
+import "git.j9xym.com/opencode-api-go/compat"
+
+// Convert generated types to TUI-compatible types
+func handleConfig(generatedConfig *opencode.Config) {
+    compatConfig := compat.ConvertCompatibleConfigFromGenerated(generatedConfig)
+    // Use compatConfig in TUI...
+}
+
+// Convert TUI params to generated types
+func logMessage(params compat.AppLogParams) error {
+    generatedParams := compat.ConvertAppLogParamsToGenerated(params)
+    return client.App.Log(ctx, generatedParams)
+}
+```
+
+### Migration from old SDK
+
+**Before (old SDK):**
+
+```go
+import "github.com/sst/opencode-sdk-go"
+```
+
+**After (hybrid SDK):**
+
+```go
+import "git.j9xym.com/opencode-api-go"
+import "git.j9xym.com/opencode-api-go/compat"
+```
 
 ---
 
-Scripts and automation
+## Build integration
 
-Add or use repository scripts for reproducible generation:
+### Generate in CI/CD
 
-- scripts/generate-go-sdk.sh — runs spec generation, bundling, oapi-codegen, copies services, updates go.mod, and tidy
-- scripts/clean-go-sdk.sh — removes generated files and restores workspace to clean state
-- Make CI step run generation check or ensure generated files are up-to-date
+```yaml
+# .github/workflows/generate-sdk.yml
+- name: Generate Go SDK
+  run: |
+    chmod +x scripts/generate-go-sdk.sh
+    ./scripts/generate-go-sdk.sh
 
-Example script outline (high level):
+- name: Validate SDK
+  run: |
+    cd sdk/go
+    go mod tidy
+    go build ./...
+    go test ./...
+```
 
-1. generate spec
-2. bundle spec
-3. oapi-codegen -generate types ...
-4. copy services from packages/sdk/go
-5. update imports (sed) to new module path
-6. cd sdk/go && go mod init <module> && go mod tidy
-7. go build ./... && cd ../packages/tui && go build ./...
+### Validate generation
+
+```bash
+# Check generation worked
+go build sdk/go/...
+
+# Run tests
+go test sdk/go/...
+
+# Check workspace sync
+go work sync
+go list -m
+```
 
 ---
 
-Common troubleshooting
+## Differences from Stainless
 
-- Missing oapi-codegen: install via go install and ensure GOBIN is in PATH.
-- Stale generated types: run clean script and regenerate.
-- Import path mismatches: prefer go.work, or run sed to fix import paths inside copied files.
-- go mod errors: run go mod tidy in module directory and then go work sync.
-- Build failures in TUI post-generation: inspect API surface changes; begin with a compatibility adaptor or update a few core call sites.
+| Aspect              | Hybrid SDK                  | Stainless SDK          |
+| ------------------- | --------------------------- | ---------------------- |
+| **Type generation** | oapi-codegen (open source)  | Stainless (commercial) |
+| **Service layer**   | Manual (Stainless-inspired) | Auto-generated         |
+| **Discriminators**  | Avoided (types-only)        | Full support           |
+| **Customization**   | Full control                | Limited                |
+| **Vendor lock-in**  | None                        | Commercial service     |
+| **Maintenance**     | Self-managed                | Managed service        |
+
+---
+
+## Troubleshooting
+
+### Common issues
+
+**Build failures:**
+
+```bash
+# Clean and regenerate
+./scripts/clean-go-sdk.sh --yes
+./scripts/generate-go-sdk.sh
+
+# Check Go version
+go version  # Should be 1.24+
+```
+
+**Module path issues:**
+
+```bash
+# Verify correct import paths
+grep -r "opencode.local-sdk-go" sdk/go/  # Should return nothing
+
+# Fix if needed
+find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
+```
+
+**Workspace sync problems:**
+
+```bash
+# Re-sync workspace
+go work sync
+
+# Check workspace status
+go work edit -json
+```
+
+**TUI compatibility issues:**
+
+```bash
+# Check compatibility layer
+cd sdk/go/compat
+go build .
+
+# Verify type conversions
+go test ./compat/...
+```
+
+### Validation checklist
+
+- [ ] `go.work` file includes both `sdk/go` and `packages/tui`
+- [ ] `sdk/go/types.gen.go` exists and compiles
+- [ ] Import paths use `git.j9xym.com/opencode-api-go`
+- [ ] `go build ./...` passes from project root
+- [ ] TUI application still compiles with compatibility layer
+
+---
+
+## Onboarding checklist
+
+**For new developers:**
+
+1. **Environment setup:**
+
+   - [ ] Install Go 1.24+
+   - [ ] Install Node.js/Bun
+   - [ ] Clone repository
+   - [ ] Run `go work sync`
+
+2. **First generation:**
+
+   - [ ] Run `./scripts/generate-go-sdk.sh`
+   - [ ] Verify build with `go build ./...`
+   - [ ] Run tests with `go test ./...`
+
+3. **Understanding the architecture:**
+
+   - [ ] Review `sdk/go/types.gen.go` (generated types)
+   - [ ] Review `sdk/go/client.go` (manual client)
+   - [ ] Review `sdk/go/compat/` (TUI integration)
+
+4. **Development workflow:**
+   - [ ] Make OpenAPI changes in TypeScript API
+   - [ ] Regenerate SDK with script
+   - [ ] Update compatibility layer if needed
+   - [ ] Test TUI integration
+
+---
+
+## Best practices
+
+### Code conventions
+
+- **Types**: Use generated types from `types.gen.go`
+- **Services**: Follow Stainless patterns for consistency
+- **Errors**: Use `*opencode.Error` type for API errors
+- **Context**: Always pass `context.Context` as first parameter
+- **Fields**: Use `opencode.F()` helpers for request fields
+
+### Generation workflow
+
+- **Clean builds**: Use `clean-go-sdk.sh` before important changes
+- **Validation**: Always build and test after generation
+- **Backup**: Generated files are backed up automatically
+- **Workspace**: Keep workspace in sync with `go work sync`
+
+### Integration patterns
+
+- **TUI compatibility**: Use `compat` package for type conversions
+- **Error handling**: Check for `*opencode.Error` with `errors.As()`
+- **Configuration**: Use workspace for development, modules for production
