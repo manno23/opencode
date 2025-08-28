@@ -20,6 +20,7 @@ import { Billing } from "@opencode/cloud-core/billing.js"
 import { Workspace } from "@opencode/cloud-core/workspace.js"
 import { BillingTable, PaymentTable, UsageTable } from "@opencode/cloud-core/schema/billing.sql.js"
 import { centsToMicroCents } from "@opencode/cloud-core/util/price.js"
+import { validateUtf8 } from "opencode/util/encoding"
 import { Identifier } from "../../core/src/identifier"
 
 type Env = {}
@@ -237,7 +238,9 @@ const app = new Hono<{ Bindings: Env; Variables: { keyRecord?: { id: string; wor
                           },
                         ],
                       }
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+                      const dataStr = `data: ${JSON.stringify(data)}\n\n`
+                      if (!validateUtf8(dataStr)) throw new Error("Invalid UTF-8 in response")
+                      controller.enqueue(encoder.encode(dataStr))
                       break
                     }
 
@@ -257,7 +260,9 @@ const app = new Hono<{ Bindings: Env; Variables: { keyRecord?: { id: string; wor
                           },
                         ],
                       }
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+                      const dataStr = `data: ${JSON.stringify(data)}\n\n`
+                      if (!validateUtf8(dataStr)) throw new Error("Invalid UTF-8 in response")
+                      controller.enqueue(encoder.encode(dataStr))
                       break
                     }
 
@@ -287,7 +292,9 @@ const app = new Hono<{ Bindings: Env; Variables: { keyRecord?: { id: string; wor
                           },
                         ],
                       }
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+                      const dataStr = `data: ${JSON.stringify(data)}\n\n`
+                      if (!validateUtf8(dataStr)) throw new Error("Invalid UTF-8 in response")
+                      controller.enqueue(encoder.encode(dataStr))
                       break
                     }
 
@@ -309,7 +316,9 @@ const app = new Hono<{ Bindings: Env; Variables: { keyRecord?: { id: string; wor
                           type: "server_error",
                         },
                       }
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+                      const dataStr = `data: ${JSON.stringify(data)}\n\n`
+                      if (!validateUtf8(dataStr)) throw new Error("Invalid UTF-8 in response")
+                      controller.enqueue(encoder.encode(dataStr))
                       controller.enqueue(encoder.encode("data: [DONE]\n\n"))
                       controller.close()
                       break
@@ -350,7 +359,9 @@ const app = new Hono<{ Bindings: Env; Variables: { keyRecord?: { id: string; wor
                         },
                       }
                       await trackUsage(body.model, chunk.usage, chunk.providerMetadata)
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+                      const dataStr = `data: ${JSON.stringify(data)}\n\n`
+                      if (!validateUtf8(dataStr)) throw new Error("Invalid UTF-8 in response")
+                      controller.enqueue(encoder.encode(dataStr))
                       controller.enqueue(encoder.encode("data: [DONE]\n\n"))
                       controller.close()
                       break

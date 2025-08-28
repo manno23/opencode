@@ -466,7 +466,7 @@ async function subscribeSessionEvents() {
   if (!response.body) throw new Error("No response body")
 
   const reader = response.body.getReader()
-  const decoder = new TextDecoder()
+  const decoder = new TextDecoder("utf-8", { fatal: true })
 
   let text = ""
   ;(async () => {

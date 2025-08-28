@@ -35,6 +35,7 @@ import { Snapshot } from "../snapshot"
 import { Storage } from "../storage/storage"
 import { Log } from "../util/log"
 import { NamedError } from "../util/error"
+import { validateUtf8 } from "../util/encoding"
 import { SystemPrompt } from "./system"
 import { FileTime } from "../file/time"
 import { MessageV2 } from "./message-v2"
@@ -1295,6 +1296,7 @@ export namespace Session {
                 break
 
               case "reasoning-delta":
+                if (!validateUtf8(value.text)) throw new Error("Invalid UTF-8")
                 if (value.id in reasoningMap) {
                   const part = reasoningMap[value.id]
                   part.text += value.text
@@ -1456,6 +1458,7 @@ export namespace Session {
                 break
 
               case "text-delta":
+                if (!validateUtf8(value.text)) throw new Error("Invalid UTF-8")
                 if (currentText) {
                   currentText.text += value.text
                   if (currentText.text) await updatePart(currentText)

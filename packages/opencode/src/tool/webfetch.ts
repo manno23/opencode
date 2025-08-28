@@ -4,6 +4,7 @@ import TurndownService from "turndown"
 import DESCRIPTION from "./webfetch.txt"
 import { Config } from "../config/config"
 import { Permission } from "../permission"
+import { strictDecode } from "../util/encoding"
 
 const MAX_RESPONSE_SIZE = 5 * 1024 * 1024 // 5MB
 const DEFAULT_TIMEOUT = 30 * 1000 // 30 seconds
@@ -72,7 +73,7 @@ export const WebFetchTool = Tool.define("webfetch", {
       throw new Error("Response too large (exceeds 5MB limit)")
     }
 
-    const content = new TextDecoder().decode(arrayBuffer)
+    const content = strictDecode(new Uint8Array(arrayBuffer))
     const contentType = response.headers.get("content-type") || ""
 
     const title = `${params.url} (${contentType})`
