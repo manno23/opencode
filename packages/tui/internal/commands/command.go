@@ -177,7 +177,7 @@ func parseBindings(bindings ...string) []Keybinding {
 		if binding == "none" {
 			continue
 		}
-		for p := range strings.SplitSeq(binding, ",") {
+		for _, p := range strings.Split(binding, ",") {
 			requireLeader := strings.HasPrefix(p, "<leader>")
 			keybinding := strings.ReplaceAll(p, "<leader>", "")
 			keybinding = strings.TrimSpace(keybinding)
@@ -409,9 +409,10 @@ func LoadFromConfig(config *opencode.Config, customCommands []opencode.Command) 
 		registry[command.Name] = command
 	}
 	for _, command := range customCommands {
+		desc := command.Description
 		registry[CommandName(command.Name)] = Command{
 			Name:        CommandName(command.Name),
-			Description: command.Description,
+			Description: desc,
 			Trigger:     []string{command.Name},
 			Keybindings: []Keybinding{},
 			Custom:      true,

@@ -45,7 +45,7 @@ func RenderFile(
 	}
 
 	lines := []string{}
-	for line := range strings.SplitSeq(content, "\n") {
+	for _, line := range strings.Split(content, "\n") {
 		line = strings.TrimRightFunc(line, unicode.IsSpace)
 		line = strings.ReplaceAll(line, "\t", "  ")
 		lines = append(lines, line)

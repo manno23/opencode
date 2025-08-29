@@ -34,7 +34,7 @@ type APILogHandler struct {
 	attrs   []slog.Attr
 	groups  []string
 	mu      sync.Mutex
-	queue   chan opencode.AppLogParams
+	queue   chan opencode.AppLogJSONRequestBody
 }
 
 func NewAPILogHandler(ctx context.Context, client *opencode.Client, service string, level slog.Level) *APILogHandler {
@@ -44,7 +44,7 @@ func NewAPILogHandler(ctx context.Context, client *opencode.Client, service stri
 		level:   level,
 		attrs:   make([]slog.Attr, 0),
 		groups:  make([]string, 0),
-		queue:   make(chan opencode.AppLogParams, 100_000),
+		queue:   make(chan opencode.AppLogJSONRequestBody, 100_000),
 	}
 	go func() {
 		for {
@@ -52,7 +52,7 @@ func NewAPILogHandler(ctx context.Context, client *opencode.Client, service stri
 			case <-ctx.Done():
 				return
 			case params := <-result.queue:
-				_, err := client.App.Log(context.Background(), params)
+				_, err := client.AppLog(context.Background(), params)
 				if err != nil {
 					slog.Error("Failed to log to API", "error", err)
 				}
@@ -67,18 +67,18 @@ func (h *APILogHandler) Enabled(_ context.Context, level slog.Level) bool {
 }
 
 func (h *APILogHandler) Handle(ctx context.Context, r slog.Record) error {
-	var apiLevel opencode.AppLogParamsLevel
+	var apiLevel opencode.AppLogJSONBodyLevel
 	switch r.Level {
 	case slog.LevelDebug:
-		apiLevel = opencode.AppLogParamsLevelDebug
+		apiLevel = opencode.AppLogJSONBodyLevelDebug
 	case slog.LevelInfo:
-		apiLevel = opencode.AppLogParamsLevelInfo
+		apiLevel = opencode.AppLogJSONBodyLevelInfo
 	case slog.LevelWarn:
-		apiLevel = opencode.AppLogParamsLevelWarn
+		apiLevel = opencode.AppLogJSONBodyLevelWarn
 	case slog.LevelError:
-		apiLevel = opencode.AppLogParamsLevelError
+		apiLevel = opencode.AppLogJSONBodyLevelError
 	default:
-		apiLevel = opencode.AppLogParamsLevelInfo
+		apiLevel = opencode.AppLogJSONBodyLevelInfo
 	}
 
 	extra := make(map[string]any)
@@ -96,14 +96,14 @@ func (h *APILogHandler) Handle(ctx context.Context, r slog.Record) error {
 		return true
 	})
 
-	params := opencode.AppLogParams{
-		Service: opencode.F(h.service),
-		Level:   opencode.F(apiLevel),
-		Message: opencode.F(r.Message),
+	params := opencode.AppLogJSONRequestBody{
+		Service: h.service,
+		Level:   apiLevel,
+		Message: r.Message,
 	}
 
 	if len(extra) > 0 {
-		params.Extra = opencode.F(extra)
+		params.Extra = &extra
 	}
 
 	h.queue <- params

@@ -3,10 +3,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"log"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/sst/opencode-sdk-go"
+	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
 type Request struct {
@@ -15,27 +14,13 @@ type Request struct {
 }
 
 func Start(ctx context.Context, program *tea.Program, client *opencode.Client) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			var req Request
-			if err := client.Get(ctx, "/tui/control/next", nil, &req); err != nil {
-				log.Printf("Error getting next request: %v", err)
-				continue
-			}
-			program.Send(req)
-		}
-	}
+	// TODO: Implement TUI control API or remove if not needed
+	// The /tui/control/next and /tui/control/response endpoints don't exist in the current API
 }
 
 func Reply(ctx context.Context, client *opencode.Client, response interface{}) tea.Cmd {
 	return func() tea.Msg {
-		err := client.Post(ctx, "/tui/control/response", response, nil)
-		if err != nil {
-			return err
-		}
+		// TODO: Implement TUI control response API or remove if not needed
 		return nil
 	}
 }

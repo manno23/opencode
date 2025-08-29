@@ -69,9 +69,7 @@ func main() {
 		}
 	}
 
-	httpClient := opencode.NewClient(
-		option.WithBaseURL(url),
-	)
+	httpClient := opencode.NewClient(option.WithBaseURL(url))
 
 	// Fetch agents from the /agent endpoint
 	agentsPtr, err := httpClient.App.Agents(context.Background())
@@ -79,11 +77,11 @@ func main() {
 		slog.Error("Failed to fetch agents", "error", err)
 		os.Exit(1)
 	}
-	if agentsPtr == nil {
+	agents := *agentsPtr
+	if len(agents) == 0 {
 		slog.Error("No agents returned from server")
 		os.Exit(1)
 	}
-	agents := *agentsPtr
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -117,20 +115,17 @@ func main() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 
-	go func() {
-		stream := httpClient.Event.ListStreaming(ctx)
-		for stream.Next() {
-			evt := stream.Current().AsUnion()
-			if _, ok := evt.(opencode.EventListResponseEventStorageWrite); ok {
-				continue
-			}
-			program.Send(evt)
-		}
-		if err := stream.Err(); err != nil {
-			slog.Error("Error streaming events", "error", err)
-			program.Send(err)
-		}
-	}()
+	// TODO: Implement event streaming with EventSubscribe
+	// go func() {
+	// 	resp, err := httpClient.EventSubscribe(ctx)
+	// 	if err != nil {
+	// 		slog.Error("Error subscribing to events", "error", err)
+	// 		return
+	// 	}
+	// 	defer resp.Body.Close()
+	// 	// Parse SSE stream
+	// 	// ... implementation needed
+	// }()
 
 	go api.Start(ctx, program, httpClient)
 
