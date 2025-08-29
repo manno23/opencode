@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
-	"github.com/sst/opencode-sdk-go/packages/ssestream"
-	"github.com/sst/opencode-sdk-go/shared"
+	"git.j9xym.com/openapi-api-go/internal/apijson"
+	"git.j9xym.com/openapi-api-go/internal/requestconfig"
+	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/openapi-api-go/packages/ssestream"
+	"git.j9xym.com/openapi-api-go/shared"
 	"github.com/tidwall/gjson"
 )
 

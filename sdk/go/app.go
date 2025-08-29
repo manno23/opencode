@@ -6,10 +6,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/openapi-api-go/internal/apijson"
+	"git.j9xym.com/openapi-api-go/internal/param"
+	"git.j9xym.com/openapi-api-go/internal/requestconfig"
+	"git.j9xym.com/openapi-api-go/option"
 )
 
 // AppService contains methods and other services that help with interacting with
@@ -62,37 +62,6 @@ func (r *AppService) Log(ctx context.Context, body AppLogParams, opts ...option.
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
-
-// Compatibility method for legacy TUI code
-func (r *AppService) AppLog(ctx context.Context, body AppLogJSONRequestBody, opts ...option.RequestOption) (res *bool, err error) {
-	// Convert legacy format to new format
-	params := AppLogParams{
-		Level:   F(AppLogParamsLevel(body.Level)),
-		Message: F(body.Message),
-		Service: F(body.Service),
-	}
-	if body.Extra != nil {
-		params.Extra = F(*body.Extra)
-	}
-	return r.Log(ctx, params, opts...)
-}
-
-// Legacy compatibility types
-type AppLogJSONRequestBody struct {
-	Service string              `json:"service"`
-	Level   AppLogJSONBodyLevel `json:"level"`
-	Message string              `json:"message"`
-	Extra   *map[string]any     `json:"extra,omitempty"`
-}
-
-type AppLogJSONBodyLevel string
-
-const (
-	AppLogJSONBodyLevelDebug AppLogJSONBodyLevel = "debug"
-	AppLogJSONBodyLevelInfo  AppLogJSONBodyLevel = "info"
-	AppLogJSONBodyLevelWarn  AppLogJSONBodyLevel = "warn"
-	AppLogJSONBodyLevelError AppLogJSONBodyLevel = "error"
-)
 
 // List all providers
 func (r *AppService) Providers(ctx context.Context, opts ...option.RequestOption) (res *AppProvidersResponse, err error) {

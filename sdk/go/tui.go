@@ -6,10 +6,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/openapi-api-go/internal/apijson"
+	"git.j9xym.com/openapi-api-go/internal/param"
+	"git.j9xym.com/openapi-api-go/internal/requestconfig"
+	"git.j9xym.com/openapi-api-go/option"
 )
 
 // TuiService contains methods and other services that help with interacting with

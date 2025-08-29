@@ -3,7 +3,7 @@ package opencode
 import (
 	"context"
 
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/openapi-api-go/option"
 )
 
 // NewCompatClient creates a new API client with the given base URL

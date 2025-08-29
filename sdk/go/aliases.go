@@ -3,8 +3,8 @@
 package opencode
 
 import (
-	"github.com/sst/opencode-sdk-go/internal/apierror"
-	"github.com/sst/opencode-sdk-go/shared"
+	"git.j9xym.com/openapi-api-go/internal/apierror"
+	"git.j9xym.com/openapi-api-go/shared"
 )
 
 type Error = apierror.Error

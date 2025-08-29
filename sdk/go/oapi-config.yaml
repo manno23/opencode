@@ -13,3 +13,29 @@ types:
     - Config
     - AppLogJSONRequestBody
     - AppLogJSONBodyLevel
+    - Error
+    - MessageAbortedError
+    - ProviderAuthError
+    - UnknownError
+    - FilePart
+    - FileSource
+    - ReasoningPart
+    - Session
+    - TextPart
+    - ToolPart
+    - UserMessage
+    - Message
+    - Part
+    - Permission
+    - SnapshotPart
+    - StepFinishPart
+    - StepStartPart
+    - SymbolSource
+    - ToolStateCompleted
+    - ToolStateError
+    - ToolStatePending
+    - ToolStateRunning
+    - FilePartSource
+    - FilePartSourceText
+    - McpLocalConfig
+    - McpRemoteConfig

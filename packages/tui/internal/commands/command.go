@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/sst/opencode-sdk-go"
+	"git.j9xym.com/openapi-api-go"
 )
 
 type ExecuteCommandMsg Command

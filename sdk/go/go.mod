@@ -1,4 +1,4 @@
-module github.com/sst/opencode-sdk-go
+module git.j9xym.com/openapi-api-go
 
 go 1.24.4
 

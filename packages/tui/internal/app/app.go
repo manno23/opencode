@@ -11,7 +11,7 @@ import (
 	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/sst/opencode-sdk-go"
+	"git.j9xym.com/openapi-api-go"
 	"github.com/sst/opencode/internal/clipboard"
 	"github.com/sst/opencode/internal/commands"
 	"github.com/sst/opencode/internal/components/toast"
@@ -61,6 +61,14 @@ type SessionCreatedMsg = struct {
 	Session *opencode.Session
 }
 type SessionSelectedMsg = *opencode.Session
+type SendPrompt = Prompt
+type SendShell = struct {
+	Command string
+}
+type SendCommand = struct {
+	Command string
+	Args    string
+}
 type MessageRevertedMsg struct {
 	Session opencode.Session
 	Message Message
@@ -80,14 +88,6 @@ type AgentSelectedMsg struct {
 
 type SessionClearedMsg struct{}
 type CompactSessionMsg struct{}
-type SendPrompt = Prompt
-type SendShell = struct {
-	Command string
-}
-type SendCommand = struct {
-	Command string
-	Args    string
-}
 type SetEditorContentMsg struct {
 	Text string
 }

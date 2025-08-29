@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"sync"
 
-	opencode "github.com/sst/opencode-sdk-go"
+	opencode "git.j9xym.com/openapi-api-go"
 )
 
 func sanitizeValue(val any) any {
@@ -34,7 +34,7 @@ type APILogHandler struct {
 	attrs   []slog.Attr
 	groups  []string
 	mu      sync.Mutex
-	queue   chan opencode.AppLogJSONRequestBody
+	queue   chan opencode.AppLogParams
 }
 
 func NewAPILogHandler(ctx context.Context, client *opencode.Client, service string, level slog.Level) *APILogHandler {
@@ -44,7 +44,7 @@ func NewAPILogHandler(ctx context.Context, client *opencode.Client, service stri
 		level:   level,
 		attrs:   make([]slog.Attr, 0),
 		groups:  make([]string, 0),
-		queue:   make(chan opencode.AppLogJSONRequestBody, 100_000),
+		queue:   make(chan opencode.AppLogParams, 100_000),
 	}
 	go func() {
 		for {
@@ -52,7 +52,7 @@ func NewAPILogHandler(ctx context.Context, client *opencode.Client, service stri
 			case <-ctx.Done():
 				return
 			case params := <-result.queue:
-				_, err := client.AppLog(context.Background(), params)
+				_, err := client.App.Log(context.Background(), params)
 				if err != nil {
 					slog.Error("Failed to log to API", "error", err)
 				}
@@ -67,18 +67,18 @@ func (h *APILogHandler) Enabled(_ context.Context, level slog.Level) bool {
 }
 
 func (h *APILogHandler) Handle(ctx context.Context, r slog.Record) error {
-	var apiLevel opencode.AppLogJSONBodyLevel
+	var apiLevel opencode.AppLogParamsLevel
 	switch r.Level {
 	case slog.LevelDebug:
-		apiLevel = opencode.AppLogJSONBodyLevelDebug
+		apiLevel = opencode.AppLogParamsLevelDebug
 	case slog.LevelInfo:
-		apiLevel = opencode.AppLogJSONBodyLevelInfo
+		apiLevel = opencode.AppLogParamsLevelInfo
 	case slog.LevelWarn:
-		apiLevel = opencode.AppLogJSONBodyLevelWarn
+		apiLevel = opencode.AppLogParamsLevelWarn
 	case slog.LevelError:
-		apiLevel = opencode.AppLogJSONBodyLevelError
+		apiLevel = opencode.AppLogParamsLevelError
 	default:
-		apiLevel = opencode.AppLogJSONBodyLevelInfo
+		apiLevel = opencode.AppLogParamsLevelInfo
 	}
 
 	extra := make(map[string]any)
@@ -96,14 +96,14 @@ func (h *APILogHandler) Handle(ctx context.Context, r slog.Record) error {
 		return true
 	})
 
-	params := opencode.AppLogJSONRequestBody{
-		Service: h.service,
-		Level:   apiLevel,
-		Message: r.Message,
+	params := opencode.AppLogParams{
+		Service: opencode.F(h.service),
+		Level:   opencode.F(apiLevel),
+		Message: opencode.F(r.Message),
 	}
 
 	if len(extra) > 0 {
-		params.Extra = &extra
+		params.Extra = opencode.F(extra)
 	}
 
 	h.queue <- params
@@ -123,6 +123,7 @@ func (h *APILogHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 		level:   h.level,
 		attrs:   make([]slog.Attr, len(h.attrs)+len(attrs)),
 		groups:  make([]string, len(h.groups)),
+		queue:   make(chan opencode.AppLogParams, 100_000),
 	}
 
 	copy(newHandler.attrs, h.attrs)
@@ -144,6 +145,7 @@ func (h *APILogHandler) WithGroup(name string) slog.Handler {
 		level:   h.level,
 		attrs:   make([]slog.Attr, len(h.attrs)),
 		groups:  make([]string, len(h.groups)+1),
+		queue:   make(chan opencode.AppLogParams, 100_000),
 	}
 
 	copy(newHandler.attrs, h.attrs)

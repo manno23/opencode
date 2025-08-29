@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/openapi-api-go/internal/requestconfig"
+	"git.j9xym.com/openapi-api-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
@@ -91,11 +91,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 func (r *Client) Execute(ctx context.Context, method string, path string, params interface{}, res interface{}, opts ...option.RequestOption) error {
 	opts = append(r.Options, opts...)
 	return requestconfig.ExecuteNewRequest(ctx, method, path, params, res, opts...)
-}
-
-// AppLog sends a log entry to the server (compatibility method)
-func (r *Client) AppLog(ctx context.Context, body AppLogJSONRequestBody, opts ...option.RequestOption) (res *bool, err error) {
-	return r.App.AppLog(ctx, body, opts...)
 }
 
 // Get makes a GET request with the given URL, params, and optionally deserializes
