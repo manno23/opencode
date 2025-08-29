@@ -1,0 +1,21 @@
+{
+  "name": "opencode-sdk-generation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SDK generation tools for OpenCode API",
+  "scripts": {
+    "generate": "bun generate.ts",
+    "generate:all": "bun generate.ts",
+    "generate:ts": "bun typescript/generate.ts",
+    "generate:go": "bun go/generate.ts",
+    "clean": "rm -rf typescript/src/generated go/generated",
+    "test": "bun run test:ts && bun run test:go",
+    "test:ts": "cd typescript && bun test",
+    "test:go": "cd go && go test ./..."
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.5.0",
+    "openapi-fetch": "^0.12.0",
+    "@types/bun": "latest"
+  }
+}

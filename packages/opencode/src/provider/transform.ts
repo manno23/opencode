@@ -1,8 +1,9 @@
 import type { ModelMessage } from "ai"
 import { unique } from "remeda"
+import { Provider } from "./provider"
 
 export namespace ProviderTransform {
-  function normalizeToolCallIds(msgs: ModelMessage[]): ModelMessage[] {
+  export function normalizeToolCallIds(msgs: ModelMessage[]): ModelMessage[] {
     return msgs.map((msg) => {
       if ((msg.role === "assistant" || msg.role === "tool") && Array.isArray(msg.content)) {
         msg.content = msg.content.map((part) => {
@@ -19,7 +20,7 @@ export namespace ProviderTransform {
     })
   }
 
-  function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] {
+  export function applyCaching(msgs: ModelMessage[], providerID: string): ModelMessage[] {
     const system = msgs.filter((msg) => msg.role === "system").slice(0, 2)
     const final = msgs.filter((msg) => msg.role !== "system").slice(-2)
 
@@ -61,13 +62,76 @@ export namespace ProviderTransform {
     return msgs
   }
 
-  export function message(msgs: ModelMessage[], providerID: string, modelID: string) {
+  export async function optimizePrompts(
+    msgs: ModelMessage[],
+    _providerID: string,
+    _modelID: string,
+  ): Promise<ModelMessage[]> {
+    // Check if prompt optimization is enabled in config
+    const config = await import("../config/config").then((m) => m.Config.get())
+    const optimizationEnabled = config.experimental?.promptOptimization?.enabled
+
+    if (!optimizationEnabled) {
+      return msgs
+    }
+
+    // Get the optimizing model
+    let optimizingModel
+    try {
+      const optimizerModel = config.experimental?.promptOptimization?.model
+      if (optimizerModel) {
+        optimizingModel = await Provider.getModel(optimizerModel.providerID, optimizerModel.modelID)
+      } else {
+        // Default to GPT-4 if available
+        optimizingModel = await Provider.getModel("openai", "gpt-4")
+      }
+    } catch {
+      // If optimizing model not available, skip optimization
+      return msgs
+    }
+
+    const optimizedMsgs = await Promise.all(
+      msgs.map(async (msg) => {
+        if (msg.role === "user" && typeof msg.content === "string") {
+          try {
+            const optimizationPrompt = `You are an expert prompt engineer. Optimize the following prompt to make it more effective for an AI assistant:
+
+Original prompt: ${msg.content}
+
+Provide an optimized version that is clearer, more specific, and more likely to produce high-quality responses. Return only the optimized prompt without any explanation.`
+
+            const result = await optimizingModel.language.generateText({
+              prompt: optimizationPrompt,
+              temperature: 0.3,
+              maxTokens: 1000,
+            })
+
+            return {
+              ...msg,
+              content: result.text.trim(),
+            }
+          } catch (error) {
+            // If optimization fails, return original message
+            return msg
+          }
+        }
+        return msg
+      }),
+    )
+
+    return optimizedMsgs
+  }
+
+  export async function message(msgs: ModelMessage[], providerID: string, modelID: string) {
     if (modelID.includes("claude")) {
       msgs = normalizeToolCallIds(msgs)
     }
     if (providerID === "anthropic" || modelID.includes("anthropic") || modelID.includes("claude")) {
       msgs = applyCaching(msgs, providerID)
     }
+
+    // Apply prompt optimization if enabled
+    msgs = await optimizePrompts(msgs, providerID, modelID)
 
     return msgs
   }

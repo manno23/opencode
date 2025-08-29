@@ -1,0 +1,11 @@
+{
+  "experimental": {
+    "promptOptimization": {
+      "enabled": true,
+      "model": {
+        "providerID": "openai",
+        "modelID": "gpt-4"
+      }
+    }
+  }
+}

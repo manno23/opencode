@@ -1,0 +1,26 @@
+# Generated files
+*/src/generated/
+*/generated/
+*/dist/
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build artifacts
+*.tsbuildinfo
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

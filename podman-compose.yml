@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  opencode-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencode-dev
+
+    # Security: Run as non-root user
+    user: "1001:1001"
+
+    # Security: Read-only root filesystem where possible
+    read_only: false # Set to true if your app doesn't write to filesystem
+
+    # Security: Drop all capabilities, add only what's needed
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+
+    # Security: Prevent privilege escalation
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits for security/stability
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+
+    # Network configuration
+    ports:
+      - "4000:4000" # Development server
+
+    # Environment variables
+    environment:
+      - NODE_ENV=development
+      - HOSTNAME=0.0.0.0
+      - PORT=4000
+      # Add your specific environment variables
+
+    # Volume mounts with security considerations
+    volumes:
+      # Source code (bind mount)
+      - type: bind
+        source: .
+        target: /workspace
+        # Security: Bind propagation
+        bind:
+          propagation: rprivate
+
+      # Neovim configuration (optional)
+      - type: bind
+        source: ${HOME}/.config/nvim
+        target: /home/opencode/.config/nvim
+        read_only: true
+        bind:
+          propagation: rprivate
+
+      # Node modules cache (named volume for better performance)
+      - node_modules_cache:/workspace/node_modules
+
+      # Bun cache
+      - bun_cache:/home/opencode/.bun
+
+      # Temporary directory (tmpfs for security)
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 100M
+          mode: 1777
+
+    # Working directory
+    working_dir: /workspace
+
+    # Keep container running for development
+    tty: true
+    stdin_open: true
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Custom DNS (optional, for security)
+    # dns is disabled to avoid aardvark dependency in rootless mode
+    # dns:
+    #   - 1.1.1.1
+    #   - 8.8.8.8
+
+    # Hostname for container
+    hostname: opencode-dev
+
+# Named volumes
+volumes:
+  node_modules_cache:
+    driver: local
+  bun_cache:
+    driver: local
+
+# Custom network (optional, for isolation)
+networks:
+  default:
+    driver: bridge

@@ -463,6 +463,17 @@ export namespace Config {
                 .optional(),
             })
             .optional(),
+          promptOptimization: z
+            .object({
+              enabled: z.boolean().default(false),
+              model: z
+                .object({
+                  providerID: z.string(),
+                  modelID: z.string(),
+                })
+                .optional(),
+            })
+            .optional(),
         })
         .optional(),
     })

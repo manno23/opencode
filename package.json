@@ -8,7 +8,7 @@
     "dev": "bun run --conditions=development packages/opencode/src/index.ts",
     "typecheck": "bun run --filter='*' typecheck",
     "generate": "(cd packages/sdk && ./js/script/generate.ts) && (cd packages/sdk/stainless && ./generate.ts)",
-    "postinstall": "./script/hooks",
+    "postinstall": "bash -c 'if [ -f ./script/hooks ]; then ./script/hooks; fi'",
     "test:snapshot": "bun test",
     "snapshot:accept": "bun test --update-snapshots"
   },
@@ -16,7 +16,7 @@
     "packages": [
       "cloud/*",
       "packages/*",
-      "packages/sdk/js"
+      "sdk/*"
     ],
     "catalog": {
       "@hono/zod-validator": "0.4.2",
@@ -34,8 +34,7 @@
     "pulumi-stripe": "0.0.24"
   },
   "devDependencies": {
-    "prettier": "3.5.3",
-    "sst": "3.17.8"
+    "prettier": "3.5.3"
   },
   "repository": {
     "type": "git",

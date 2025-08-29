@@ -1,374 +1,354 @@
-# Opencode Go SDK
+# Opencode Go API Library
 
-The Opencode Go library provides convenient access to the [Opencode REST API](https://opencode.ai/docs) from applications written in Go using a hybrid generation approach that combines automated type generation with manually crafted service architecture.
+<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go"><img src="https://pkg.go.dev/badge/github.com/sst/opencode-sdk-go.svg" alt="Go Reference"></a>
 
-## Generation approach
+The Opencode Go library provides convenient access to the [Opencode REST API](https://opencode.ai/docs)
+from applications written in Go.
 
-This SDK uses a **hybrid generation approach** that balances automation with control:
-
-- **Types**: Auto-generated using `oapi-codegen` from OpenAPI specification
-- **Services**: Manual implementation following proven Stainless SDK patterns
-- **Integration**: Seamless compatibility layer for existing TUI applications
-
----
-
-## Requirements
-
-- **Go 1.24+** (uses Go workspace features)
-- **Node.js/Bun** (for OpenAPI spec generation)
-- **oapi-codegen v2.5.0+** (automatically installed during generation)
-
----
+It is generated with [Stainless](https://www.stainless.com/).
 
 ## Installation
 
-For standalone usage:
+<!-- x-release-please-start-version -->
 
 ```go
-go get git.j9xym.com/opencode-api-go
+import (
+	"github.com/sst/opencode-sdk-go" // imported as opencode
+)
 ```
 
-For development within the opencode monorepo, use the Go workspace:
+<!-- x-release-please-end -->
 
-```bash
-# From project root
-go work sync
+Or to pin the version:
+
+<!-- x-release-please-start-version -->
+
+```sh
+go get -u 'github.com/sst/opencode-sdk-go@v0.1.0-alpha.8'
 ```
 
----
+<!-- x-release-please-end -->
 
-## Quick start
+## Requirements
+
+This library requires Go 1.18+.
+
+## Usage
+
+The full API of this library can be found in [api.md](api.md).
 
 ```go
 package main
 
 import (
-    "context"
-    "fmt"
-    "git.j9xym.com/opencode-api-go"
+	"context"
+	"fmt"
+
+	"github.com/sst/opencode-sdk-go"
 )
 
 func main() {
-    client := opencode.NewClient()
+	client := opencode.NewClient()
+	sessions, err := client.Session.List(context.TODO())
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("%+v\n", sessions)
+}
 
-    sessions, err := client.Session.List(context.TODO())
-    if err != nil {
-        panic(err)
-    }
-    fmt.Printf("Sessions: %+v\n", sessions)
+```
+
+### Request fields
+
+All request parameters are wrapped in a generic `Field` type,
+which we use to distinguish zero values from null or omitted fields.
+
+This prevents accidentally sending a zero value if you forget a required parameter,
+and enables explicitly sending `null`, `false`, `''`, or `0` on optional parameters.
+Any field not specified is not sent.
+
+To construct fields with values, use the helpers `String()`, `Int()`, `Float()`, or most commonly, the generic `F[T]()`.
+To send a null, use `Null[T]()`, and to send a nonconforming value, use `Raw[T](any)`. For example:
+
+```go
+params := FooParams{
+	Name: opencode.F("hello"),
+
+	// Explicitly send `"description": null`
+	Description: opencode.Null[string](),
+
+	Point: opencode.F(opencode.Point{
+		X: opencode.Int(0),
+		Y: opencode.Int(1),
+
+		// In cases where the API specifies a given type,
+		// but you want to send something else, use `Raw`:
+		Z: opencode.Raw[int64](0.01), // sends a float
+	}),
 }
 ```
 
----
+### Response objects
 
-## Development environment
+All fields in response structs are value types (not pointers or wrappers).
 
-### Workspace setup
+If a given field is `null`, not present, or invalid, the corresponding field
+will simply be its zero value.
 
-The project uses Go workspaces for development. The workspace is configured in the root `go.work` file:
-
-```
-use ./sdk/go
-use ./packages/tui
-```
-
-**Initialize workspace:**
-
-```bash
-go work init
-go work use ./sdk/go ./packages/tui
-```
-
-**Sync workspace after changes:**
-
-```bash
-go work sync
-```
-
----
-
-## SDK generation workflow
-
-### Generate from scratch
-
-**Quick generation:**
-
-```bash
-./scripts/generate-go-sdk.sh
-```
-
-**Manual steps:**
-
-```bash
-# 1. Generate OpenAPI spec
-bun run --conditions=development packages/opencode/src/index.ts generate > schema/openapi.json
-
-# 2. Bundle specification
-npx redocly bundle schema/openapi.json -o schema/openapi.bundled.json --dereferenced
-
-# 3. Install generation tools
-go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-
-# 4. Generate types
-oapi-codegen -generate types -package opencode schema/openapi.bundled.json > sdk/go/types.gen.go
-
-# 5. Copy service layer
-rsync -a --exclude 'go.mod' packages/sdk/go/ sdk/go/
-
-# 6. Update module paths
-find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
-
-# 7. Tidy and build
-cd sdk/go && go mod tidy && go build ./...
-```
-
-### Clean build
-
-**Full cleanup:**
-
-```bash
-./scripts/clean-go-sdk.sh --yes
-```
-
-**Manual cleanup:**
-
-```bash
-# Remove generated artifacts
-rm -f sdk/go/types.gen.go
-rm -rf sdk/go/generated
-
-# Clean module caches
-go clean -modcache
-
-# Sync workspace
-go work sync
-```
-
----
-
-## Architecture overview
-
-### Hybrid approach benefits
-
-- ✅ **Type safety**: Auto-generated types from OpenAPI spec
-- ✅ **Control**: Manual service layer for optimal developer experience
-- ✅ **Compatibility**: Adaptor layer for existing TUI integration
-- ✅ **Maintenance**: No vendor lock-in, open source toolchain
-
-### Generated structure
-
-```
-sdk/go/
-├── types.gen.go          # Auto-generated types (oapi-codegen)
-├── client.go             # Main client (manual)
-├── services.go           # Service registry (manual)
-├── app.go                # App service (manual)
-├── session.go            # Session service (manual)
-├── event.go              # Event service (manual)
-├── file.go               # File service (manual)
-├── find.go               # Find service (manual)
-├── compat/               # TUI compatibility layer
-│   ├── compat.go         # Type adaptors
-│   └── README.md         # Usage guide
-├── internal/             # Internal utilities
-└── shared/               # Shared types
-```
-
----
-
-## TUI integration
-
-### Compatibility layer
-
-The `compat` package provides adaptors for TUI integration:
+All response structs also include a special `JSON` field, containing more detailed
+information about each property, which you can use like so:
 
 ```go
-import "git.j9xym.com/opencode-api-go/compat"
+if res.Name == "" {
+	// true if `"name"` is either not present or explicitly null
+	res.JSON.Name.IsNull()
 
-// Convert generated types to TUI-compatible types
-func handleConfig(generatedConfig *opencode.Config) {
-    compatConfig := compat.ConvertCompatibleConfigFromGenerated(generatedConfig)
-    // Use compatConfig in TUI...
-}
+	// true if the `"name"` key was not present in the response JSON at all
+	res.JSON.Name.IsMissing()
 
-// Convert TUI params to generated types
-func logMessage(params compat.AppLogParams) error {
-    generatedParams := compat.ConvertAppLogParamsToGenerated(params)
-    return client.App.Log(ctx, generatedParams)
+	// When the API returns data that cannot be coerced to the expected type:
+	if res.JSON.Name.IsInvalid() {
+		raw := res.JSON.Name.Raw()
+
+		legacyName := struct{
+			First string `json:"first"`
+			Last  string `json:"last"`
+		}{}
+		json.Unmarshal([]byte(raw), &legacyName)
+		name = legacyName.First + " " + legacyName.Last
+	}
 }
 ```
 
-### Migration from old SDK
-
-**Before (old SDK):**
-
-```go
-import "github.com/sst/opencode-sdk-go"
-```
-
-**After (hybrid SDK):**
+These `.JSON` structs also include an `Extras` map containing
+any properties in the json response that were not specified
+in the struct. This can be useful for API features not yet
+present in the SDK.
 
 ```go
-import "git.j9xym.com/opencode-api-go"
-import "git.j9xym.com/opencode-api-go/compat"
+body := res.JSON.ExtraFields["my_unexpected_field"].Raw()
 ```
 
----
+### RequestOptions
 
-## Build integration
+This library uses the functional options pattern. Functions defined in the
+`option` package return a `RequestOption`, which is a closure that mutates a
+`RequestConfig`. These options can be supplied to the client or at individual
+requests. For example:
 
-### Generate in CI/CD
+```go
+client := opencode.NewClient(
+	// Adds a header to every request made by the client
+	option.WithHeader("X-Some-Header", "custom_header_info"),
+)
 
-```yaml
-# .github/workflows/generate-sdk.yml
-- name: Generate Go SDK
-  run: |
-    chmod +x scripts/generate-go-sdk.sh
-    ./scripts/generate-go-sdk.sh
-
-- name: Validate SDK
-  run: |
-    cd sdk/go
-    go mod tidy
-    go build ./...
-    go test ./...
+client.Session.List(context.TODO(), ...,
+	// Override the header
+	option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
+	// Add an undocumented field to the request body, using sjson syntax
+	option.WithJSONSet("some.json.path", map[string]string{"my": "object"}),
+)
 ```
 
-### Validate generation
+See the [full list of request options](https://pkg.go.dev/github.com/sst/opencode-sdk-go/option).
 
-```bash
-# Check generation worked
-go build sdk/go/...
+### Pagination
 
-# Run tests
-go test sdk/go/...
+This library provides some conveniences for working with paginated list endpoints.
 
-# Check workspace sync
-go work sync
-go list -m
+You can use `.ListAutoPaging()` methods to iterate through items across all pages:
+
+Or you can use simple `.List()` methods to fetch a single page and receive a standard response object
+with additional helper methods like `.GetNextPage()`, e.g.:
+
+### Errors
+
+When the API returns a non-success status code, we return an error with type
+`*opencode.Error`. This contains the `StatusCode`, `*http.Request`, and
+`*http.Response` values of the request, as well as the JSON of the error body
+(much like other response objects in the SDK).
+
+To handle errors, we recommend that you use the `errors.As` pattern:
+
+```go
+_, err := client.Session.List(context.TODO())
+if err != nil {
+	var apierr *opencode.Error
+	if errors.As(err, &apierr) {
+		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
+		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
+	}
+	panic(err.Error()) // GET "/session": 400 Bad Request { ... }
+}
 ```
 
----
+When other errors occur, they are returned unwrapped; for example,
+if HTTP transport fails, you might receive `*url.Error` wrapping `*net.OpError`.
 
-## Differences from Stainless
+### Timeouts
 
-| Aspect              | Hybrid SDK                  | Stainless SDK          |
-| ------------------- | --------------------------- | ---------------------- |
-| **Type generation** | oapi-codegen (open source)  | Stainless (commercial) |
-| **Service layer**   | Manual (Stainless-inspired) | Auto-generated         |
-| **Discriminators**  | Avoided (types-only)        | Full support           |
-| **Customization**   | Full control                | Limited                |
-| **Vendor lock-in**  | None                        | Commercial service     |
-| **Maintenance**     | Self-managed                | Managed service        |
+Requests do not time out by default; use context to configure a timeout for a request lifecycle.
 
----
+Note that if a request is [retried](#retries), the context timeout does not start over.
+To set a per-retry timeout, use `option.WithRequestTimeout()`.
 
-## Troubleshooting
-
-### Common issues
-
-**Build failures:**
-
-```bash
-# Clean and regenerate
-./scripts/clean-go-sdk.sh --yes
-./scripts/generate-go-sdk.sh
-
-# Check Go version
-go version  # Should be 1.24+
+```go
+// This sets the timeout for the request, including all the retries.
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+defer cancel()
+client.Session.List(
+	ctx,
+	// This sets the per-retry timeout
+	option.WithRequestTimeout(20*time.Second),
+)
 ```
 
-**Module path issues:**
+### File uploads
 
-```bash
-# Verify correct import paths
-grep -r "opencode.local-sdk-go" sdk/go/  # Should return nothing
+Request parameters that correspond to file uploads in multipart requests are typed as
+`param.Field[io.Reader]`. The contents of the `io.Reader` will by default be sent as a multipart form
+part with the file name of "anonymous_file" and content-type of "application/octet-stream".
 
-# Fix if needed
-find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
+The file name and content-type can be customized by implementing `Name() string` or `ContentType()
+string` on the run-time type of `io.Reader`. Note that `os.File` implements `Name() string`, so a
+file returned by `os.Open` will be sent with the file name on disk.
+
+We also provide a helper `opencode.FileParam(reader io.Reader, filename string, contentType string)`
+which can be used to wrap any `io.Reader` with the appropriate file name and content type.
+
+### Retries
+
+Certain errors will be automatically retried 2 times by default, with a short exponential backoff.
+We retry by default all connection errors, 408 Request Timeout, 409 Conflict, 429 Rate Limit,
+and >=500 Internal errors.
+
+You can use the `WithMaxRetries` option to configure or disable this:
+
+```go
+// Configure the default for all requests:
+client := opencode.NewClient(
+	option.WithMaxRetries(0), // default is 2
+)
+
+// Override per-request:
+client.Session.List(context.TODO(), option.WithMaxRetries(5))
 ```
 
-**Workspace sync problems:**
+### Accessing raw response data (e.g. response headers)
 
-```bash
-# Re-sync workspace
-go work sync
+You can access the raw HTTP response data by using the `option.WithResponseInto()` request option. This is useful when
+you need to examine response headers, status codes, or other details.
 
-# Check workspace status
-go work edit -json
+```go
+// Create a variable to store the HTTP response
+var response *http.Response
+sessions, err := client.Session.List(context.TODO(), option.WithResponseInto(&response))
+if err != nil {
+	// handle error
+}
+fmt.Printf("%+v\n", sessions)
+
+fmt.Printf("Status Code: %d\n", response.StatusCode)
+fmt.Printf("Headers: %+#v\n", response.Header)
 ```
 
-**TUI compatibility issues:**
+### Making custom/undocumented requests
 
-```bash
-# Check compatibility layer
-cd sdk/go/compat
-go build .
+This library is typed for convenient access to the documented API. If you need to access undocumented
+endpoints, params, or response properties, the library can still be used.
 
-# Verify type conversions
-go test ./compat/...
+#### Undocumented endpoints
+
+To make requests to undocumented endpoints, you can use `client.Get`, `client.Post`, and other HTTP verbs.
+`RequestOptions` on the client, such as retries, will be respected when making these requests.
+
+```go
+var (
+    // params can be an io.Reader, a []byte, an encoding/json serializable object,
+    // or a "…Params" struct defined in this library.
+    params map[string]interface{}
+
+    // result can be an []byte, *http.Response, a encoding/json deserializable object,
+    // or a model defined in this library.
+    result *http.Response
+)
+err := client.Post(context.Background(), "/unspecified", params, &result)
+if err != nil {
+    …
+}
 ```
 
-### Validation checklist
+#### Undocumented request params
 
-- [ ] `go.work` file includes both `sdk/go` and `packages/tui`
-- [ ] `sdk/go/types.gen.go` exists and compiles
-- [ ] Import paths use `git.j9xym.com/opencode-api-go`
-- [ ] `go build ./...` passes from project root
-- [ ] TUI application still compiles with compatibility layer
+To make requests using undocumented parameters, you may use either the `option.WithQuerySet()`
+or the `option.WithJSONSet()` methods.
 
----
+```go
+params := FooNewParams{
+    ID:   opencode.F("id_xxxx"),
+    Data: opencode.F(FooNewParamsData{
+        FirstName: opencode.F("John"),
+    }),
+}
+client.Foo.New(context.Background(), params, option.WithJSONSet("data.last_name", "Doe"))
+```
 
-## Onboarding checklist
+#### Undocumented response properties
 
-**For new developers:**
+To access undocumented response properties, you may either access the raw JSON of the response as a string
+with `result.JSON.RawJSON()`, or get the raw JSON of a particular field on the result with
+`result.JSON.Foo.Raw()`.
 
-1. **Environment setup:**
+Any fields that are not present on the response struct will be saved and can be accessed by `result.JSON.ExtraFields()` which returns the extra fields as a `map[string]Field`.
 
-   - [ ] Install Go 1.24+
-   - [ ] Install Node.js/Bun
-   - [ ] Clone repository
-   - [ ] Run `go work sync`
+### Middleware
 
-2. **First generation:**
+We provide `option.WithMiddleware` which applies the given
+middleware to requests.
 
-   - [ ] Run `./scripts/generate-go-sdk.sh`
-   - [ ] Verify build with `go build ./...`
-   - [ ] Run tests with `go test ./...`
+```go
+func Logger(req *http.Request, next option.MiddlewareNext) (res *http.Response, err error) {
+	// Before the request
+	start := time.Now()
+	LogReq(req)
 
-3. **Understanding the architecture:**
+	// Forward the request to the next handler
+	res, err = next(req)
 
-   - [ ] Review `sdk/go/types.gen.go` (generated types)
-   - [ ] Review `sdk/go/client.go` (manual client)
-   - [ ] Review `sdk/go/compat/` (TUI integration)
+	// Handle stuff after the request
+	end := time.Now()
+	LogRes(res, err, start - end)
 
-4. **Development workflow:**
-   - [ ] Make OpenAPI changes in TypeScript API
-   - [ ] Regenerate SDK with script
-   - [ ] Update compatibility layer if needed
-   - [ ] Test TUI integration
+    return res, err
+}
 
----
+client := opencode.NewClient(
+	option.WithMiddleware(Logger),
+)
+```
 
-## Best practices
+When multiple middlewares are provided as variadic arguments, the middlewares
+are applied left to right. If `option.WithMiddleware` is given
+multiple times, for example first in the client then the method, the
+middleware in the client will run first and the middleware given in the method
+will run next.
 
-### Code conventions
+You may also replace the default `http.Client` with
+`option.WithHTTPClient(client)`. Only one http client is
+accepted (this overwrites any previous client) and receives requests after any
+middleware has been applied.
 
-- **Types**: Use generated types from `types.gen.go`
-- **Services**: Follow Stainless patterns for consistency
-- **Errors**: Use `*opencode.Error` type for API errors
-- **Context**: Always pass `context.Context` as first parameter
-- **Fields**: Use `opencode.F()` helpers for request fields
+## Semantic versioning
 
-### Generation workflow
+This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
 
-- **Clean builds**: Use `clean-go-sdk.sh` before important changes
-- **Validation**: Always build and test after generation
-- **Backup**: Generated files are backed up automatically
-- **Workspace**: Keep workspace in sync with `go work sync`
+1. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
+2. Changes that we do not expect to impact the vast majority of users in practice.
 
-### Integration patterns
+We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-- **TUI compatibility**: Use `compat` package for type conversions
-- **Error handling**: Check for `*opencode.Error` with `errors.As()`
-- **Configuration**: Use workspace for development, modules for production
+We are keen for your feedback; please open an [issue](https://www.github.com/sst/opencode-sdk-go/issues) with questions, bugs, or suggestions.
+
+## Contributing
+
+See [the contributing documentation](./CONTRIBUTING.md).

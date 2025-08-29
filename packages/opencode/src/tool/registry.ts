@@ -11,6 +11,7 @@ import { TodoWriteTool, TodoReadTool } from "./todo"
 import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
+import { OptimizePromptTool } from "./optimize-prompt"
 import type { Agent } from "../agent/agent"
 
 export namespace ToolRegistry {
@@ -28,6 +29,7 @@ export namespace ToolRegistry {
     TodoWriteTool,
     TodoReadTool,
     TaskTool,
+    OptimizePromptTool,
   ]
 
   export function ids() {

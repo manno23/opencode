@@ -243,8 +243,8 @@ bundle_specification() {
     
     # Bundle with dereferencing
     run_command \
-        "npx redocly bundle schema/openapi.json -o schema/openapi.bundled.json --dereferenced" \
-        "Bundling and dereferencing spec"
+        "npx redocly bundle schema/openapi.json -o schema/openapi.bundled.json" \
+        "Bundling spec"
     
     # Verify bundled spec
     if [[ ! -f "$SCHEMA_DIR/openapi.bundled.json" ]]; then
@@ -278,23 +278,30 @@ install_oapi_codegen() {
 
 generate_types() {
     log_info "Generating Go types..."
-    
+
     cd "$ROOT_DIR"
-    
+
     # Ensure SDK directory exists
     mkdir -p "$SDK_DIR"
-    
-    # Generate types using oapi-codegen
+
+    # Generate types using oapi-codegen to a temporary file first
+    local temp_file
+    temp_file=$(mktemp)
+
     run_command \
-        "oapi-codegen -generate types -package opencode schema/openapi.bundled.json > sdk/go/types.gen.go" \
+        "oapi-codegen -generate types -package opencode schema/openapi.bundled.json > '$temp_file'" \
         "Generating types with oapi-codegen"
-    
+
     # Verify types were generated
-    if [[ ! -f "$SDK_DIR/types.gen.go" ]]; then
+    if [[ ! -s "$temp_file" ]]; then
         log_error "Failed to generate types"
+        rm -f "$temp_file"
         return 1
     fi
-    
+
+    # Move temp file to final location
+    mv "$temp_file" "$SDK_DIR/types.gen.go"
+
     local type_lines
     type_lines=$(wc -l < "$SDK_DIR/types.gen.go")
     log_verbose "Generated types: $type_lines lines"
@@ -302,20 +309,21 @@ generate_types() {
 
 copy_service_structure() {
     log_info "Copying service structure..."
-    
+
     # Verify source SDK exists
     if [[ ! -d "$SOURCE_SDK_DIR" ]]; then
-        log_error "Source SDK directory not found: $SOURCE_SDK_DIR"
-        return 1
+        log_warning "Source SDK directory not found: $SOURCE_SDK_DIR"
+        log_warning "Skipping service structure copy - manual service files may need to be created"
+        return 0
     fi
-    
+
     cd "$ROOT_DIR"
-    
+
     # Copy service files using rsync to preserve permissions
     run_command \
         "rsync -av --exclude='go.mod' --exclude='types.gen.go' '$SOURCE_SDK_DIR/' '$SDK_DIR/'" \
         "Copying service structure"
-    
+
     # Count copied files
     local copied_files
     copied_files=$(find "$SDK_DIR" -name "*.go" -not -name "types.gen.go" | wc -l)

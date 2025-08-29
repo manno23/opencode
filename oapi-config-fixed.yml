@@ -1,0 +1,35 @@
+package: opencode
+generate:
+  models: true
+exclude-schemas:
+  # Exclude types that are manually defined or aliased
+  - Error
+  - MessageAbortedError
+  - ProviderAuthError
+  - UnknownError
+  - Agent
+  - AgentPart
+  - AssistantMessage
+  - FilePart
+  - FileSource
+  - ReasoningPart
+  - Session
+  - TextPart
+  - ToolPart
+  - UserMessage
+  - Message
+  - Part
+  - Permission
+  - Command
+  - SnapshotPart
+  - StepFinishPart
+  - StepStartPart
+  - SymbolSource
+  - ToolStateCompleted
+  - ToolStateError
+  - ToolStatePending
+  - ToolStateRunning
+  - FilePartSource
+  - FilePartSourceText
+  - McpLocalConfig
+  - McpRemoteConfig

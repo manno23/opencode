@@ -1,0 +1,11 @@
+Optimizes prompts using an AI model to improve their effectiveness before sending to target models.
+
+This tool takes a prompt and uses a specialized optimizing model (typically GPT-4) to enhance it based on the specified optimization goal. The optimized prompt can then be used with other AI models for better results.
+
+Usage:
+- Provide the original prompt to optimize
+- Optionally specify context about how the prompt will be used
+- Choose the target model the optimized prompt will be sent to
+- Select the optimization goal: clarity, specificity, efficiency, or comprehensiveness
+
+The tool returns the optimized prompt along with metadata about the optimization process.

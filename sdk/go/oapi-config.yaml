@@ -1,0 +1,15 @@
+package: opencode
+generate:
+  - types
+output: types.gen.go
+types:
+  skip:
+    - ConfigShare
+    - Agent
+    - AgentPart
+    - App
+    - AssistantMessage
+    - Command
+    - Config
+    - AppLogJSONRequestBody
+    - AppLogJSONBodyLevel
