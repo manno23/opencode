@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"git.j9xym.com/openapi-api-go/internal/requestconfig"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with

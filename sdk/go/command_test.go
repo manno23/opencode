@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"git.j9xym.com/openapi-api-go"
-	"git.j9xym.com/openapi-api-go/internal/testutil"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go"
+	"git.j9xym.com/opencode-api-go/internal/testutil"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 func TestCommandList(t *testing.T) {

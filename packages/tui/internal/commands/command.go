@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
+	"git.j9xym.com/opencode-api-go"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"git.j9xym.com/openapi-api-go"
 )
 
 type ExecuteCommandMsg Command
@@ -160,6 +160,7 @@ const (
 	MessagesUndoCommand             CommandName = "messages_undo"
 	MessagesRedoCommand             CommandName = "messages_redo"
 	AppExitCommand                  CommandName = "app_exit"
+	SSEDebugCommand                 CommandName = "sse_debug"
 )
 
 func (k Command) Matches(msg tea.KeyPressMsg, leader bool) bool {

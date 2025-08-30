@@ -12,7 +12,7 @@ import (
 	"github.com/charmbracelet/lipgloss/v2/compat"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/reflow/truncate"
-	"git.j9xym.com/openapi-api-go"
+	"git.j9xym.com/opencode-api-go"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/commands"
 	"github.com/sst/opencode/internal/components/diff"

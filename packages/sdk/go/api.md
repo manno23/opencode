@@ -1,14 +1,14 @@
 # Shared Response Types
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared">shared</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared#MessageAbortedError">MessageAbortedError</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared">shared</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared#ProviderAuthError">ProviderAuthError</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared">shared</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go/shared#UnknownError">UnknownError</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared">shared</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared#MessageAbortedError">MessageAbortedError</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared">shared</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared#ProviderAuthError">ProviderAuthError</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared">shared</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go/shared#UnknownError">UnknownError</a>
 
 # Event
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#EventListResponse">EventListResponse</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#EventListResponse">EventListResponse</a>
 
 Methods:
 
@@ -51,14 +51,14 @@ Methods:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#Symbol">Symbol</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindTextResponse">FindTextResponse</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#Symbol">Symbol</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindTextResponse">FindTextResponse</a>
 
 Methods:
 
-- <code title="get /find/file">client.Find.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindService.Files">Files</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindFilesParams">FindFilesParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /find/symbol">client.Find.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindService.Symbols">Symbols</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindSymbolsParams">FindSymbolsParams</a>) ([]<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#Symbol">Symbol</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /find">client.Find.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindService.Text">Text</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindTextParams">FindTextParams</a>) ([]<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FindTextResponse">FindTextResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /find/file">client.Find.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindService.Files">Files</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindFilesParams">FindFilesParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /find/symbol">client.Find.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindService.Symbols">Symbols</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindSymbolsParams">FindSymbolsParams</a>) ([]<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#Symbol">Symbol</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /find">client.Find.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindService.Text">Text</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindTextParams">FindTextParams</a>) ([]<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FindTextResponse">FindTextResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # File
 
@@ -78,10 +78,10 @@ Methods:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#Config">Config</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#KeybindsConfig">KeybindsConfig</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#McpLocalConfig">McpLocalConfig</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#McpRemoteConfig">McpRemoteConfig</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#Config">Config</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#KeybindsConfig">KeybindsConfig</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#McpLocalConfig">McpLocalConfig</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#McpRemoteConfig">McpRemoteConfig</a>
 
 Methods:
 
@@ -91,7 +91,7 @@ Methods:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#Command">Command</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#Command">Command</a>
 
 Methods:
 
@@ -112,13 +112,13 @@ Methods:
 
 Params Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#AgentPartInputParam">AgentPartInputParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FilePartInputParam">FilePartInputParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FilePartSourceUnionParam">FilePartSourceUnionParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FilePartSourceTextParam">FilePartSourceTextParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#FileSourceParam">FileSourceParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#SymbolSourceParam">SymbolSourceParam</a>
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#TextPartInputParam">TextPartInputParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#AgentPartInputParam">AgentPartInputParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FilePartInputParam">FilePartInputParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FilePartSourceUnionParam">FilePartSourceUnionParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FilePartSourceTextParam">FilePartSourceTextParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#FileSourceParam">FileSourceParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#SymbolSourceParam">SymbolSourceParam</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#TextPartInputParam">TextPartInputParam</a>
 
 Response Types:
 
@@ -173,7 +173,7 @@ Methods:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go#Permission">Permission</a>
+- <a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go">opencode</a>.<a href="https://pkg.go.dev/git.j9xym.com/opencode-api-go#Permission">Permission</a>
 
 Methods:
 

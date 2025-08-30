@@ -203,6 +203,47 @@ export namespace Server {
       },
     )
     .get(
+      "/health",
+      describeRoute({
+        description: "Get system health information",
+        operationId: "health.get",
+        responses: {
+          200: {
+            description: "System health information",
+            content: {
+              "application/json": {
+                schema: resolver(
+                  z.object({
+                    status: z.string(),
+                    timestamp: z.number(),
+                    uptime: z.number(),
+                    memory: z.object({
+                      used: z.number(),
+                      total: z.number(),
+                      free: z.number(),
+                    }),
+                  }),
+                ),
+              },
+            },
+          },
+        },
+      }),
+      async (c) => {
+        const memUsage = process.memoryUsage()
+        return c.json({
+          status: "healthy",
+          timestamp: Date.now(),
+          uptime: process.uptime(),
+          memory: {
+            used: memUsage.heapUsed,
+            total: memUsage.heapTotal,
+            free: memUsage.heapTotal - memUsage.heapUsed,
+          },
+        })
+      },
+    )
+    .get(
       "/session",
       describeRoute({
         description: "List all sessions",

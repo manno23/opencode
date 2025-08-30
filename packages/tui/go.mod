@@ -3,6 +3,7 @@ module github.com/sst/opencode
 go 1.24.0
 
 require (
+	git.j9xym.com/opencode-api-go v0.0.0-00010101000000-000000000000
 	github.com/BurntSushi/toml v1.5.0
 	github.com/alecthomas/chroma/v2 v2.18.0
 	github.com/charmbracelet/bubbles/v2 v2.0.0-beta.1
@@ -20,14 +21,15 @@ require (
 	github.com/muesli/termenv v0.16.0
 	github.com/rivo/uniseg v0.4.7
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3
+	github.com/spf13/pflag v1.0.7
 	golang.org/x/image v0.28.0
 	golang.org/x/text v0.26.0
 	rsc.io/qr v0.2.0
 )
 
 replace (
+	git.j9xym.com/opencode-api-go => ../sdk/go
 	github.com/charmbracelet/x/input => ./input
-	github.com/sst/opencode-sdk-go => ../sdk/go
 )
 
 require (
@@ -46,13 +48,16 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.5 // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/term v0.31.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
 )

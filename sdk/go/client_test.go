@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"git.j9xym.com/openapi-api-go"
-	"git.j9xym.com/openapi-api-go/internal"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go"
+	"git.j9xym.com/opencode-api-go/internal"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 type closureTransport struct {

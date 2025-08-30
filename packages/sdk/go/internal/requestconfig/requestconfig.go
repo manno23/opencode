@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sst/opencode-sdk-go/internal"
-	"github.com/sst/opencode-sdk-go/internal/apierror"
-	"github.com/sst/opencode-sdk-go/internal/apiform"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal"
+	"git.j9xym.com/opencode-api-go/internal/apierror"
+	"git.j9xym.com/opencode-api-go/internal/apiform"
+	"git.j9xym.com/opencode-api-go/internal/apiquery"
+	"git.j9xym.com/opencode-api-go/internal/param"
 )
 
 func getDefaultHeaders() map[string]string {
@@ -229,10 +229,10 @@ type RequestConfig struct {
 // middleware is exactly the same type as the Middleware type found in the [option] package,
 // but it is redeclared here for circular dependency issues.
 type middleware = func(*http.Request, middlewareNext) (*http.Response, error)
+type middlewareNext = func(*http.Request) (*http.Response, error)
 
 // middlewareNext is exactly the same type as the MiddlewareNext type found in the [option] package,
 // but it is redeclared here for circular dependency issues.
-type middlewareNext = func(*http.Request) (*http.Response, error)
 
 func applyMiddleware(middleware middleware, next middlewareNext) middlewareNext {
 	return func(req *http.Request) (res *http.Response, err error) {

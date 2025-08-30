@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
 	"github.com/sst/opencode-sdk-go/internal/apiquery"
 	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // CommandService contains methods and other services that help with interacting

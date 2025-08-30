@@ -1,51 +1,20 @@
 {
-  "name": "@opencode-ai/sdk-next",
-  "version": "0.1.0",
-  "description": "Modern TypeScript SDK for OpenCode API - Cloudflare Workers optimized",
+  "name": "@opencode-ai/sdk",
+  "version": "1.0.0",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/client.ts",
+  "types": "./src/types.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./types": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/types.js"
+      "types": "./src/types.ts",
+      "import": "./src/client.ts"
     }
   },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "generate": "bun run generate.ts",
-    "build": "bun build src/index.ts --outdir dist --target node --format esm --splitting && bun run build:types",
-    "build:types": "bunx tsc --emitDeclarationOnly --outDir dist",
-    "test": "bun test",
-    "clean": "rm -rf src/generated dist",
-    "prepublishOnly": "bun run generate && bun run build"
-  },
-  "keywords": [
-    "opencode",
-    "api",
-    "sdk",
-    "typescript",
-    "cloudflare",
-    "workers",
-    "edge"
-  ],
   "dependencies": {
-    "openapi-fetch": "^0.12.0",
-    "zod": "^3.22.0"
+    "openapi-fetch": "^0.12.0"
   },
   "devDependencies": {
     "openapi-typescript": "^7.5.0",
-    "@types/bun": "latest",
-    "typescript": "^5.6.0"
-  },
-  "engines": {
-    "node": ">=18",
-    "bun": ">=1.0"
+    "typescript": "^5.8.2"
   }
 }

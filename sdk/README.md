@@ -15,18 +15,26 @@ This directory contains **next-generation SDK generation** that replaces the pre
 
 ## Quick start
 
-Generate all SDKs:
+Generate Go SDK (clean independent approach):
+
+```bash
+# From project root
+./scripts/generate-clean-sdk.sh --go --server
+```
+
+This generates the Go SDK in `sdk/go/` with:
+
+- Complete API coverage
+- Independent from legacy packages/sdk/js/
+- Clean module path: git.j9xym.com/opencode-api-go
+- Integration tests included
+
+For TypeScript SDK:
 
 ```bash
 cd sdk
 bun install
-bun run generate
-```
-
-Generate specific SDK:
-
-```bash
-bun run generate typescript  # or 'go'
+bun run generate typescript
 ```
 
 ---
@@ -35,18 +43,19 @@ bun run generate typescript  # or 'go'
 
 ### Current state analysis
 
-**Modern unified SDKs:**
+**Clean independent SDKs:**
 
 - ✅ `sdk/typescript/` - openapi-typescript + openapi-fetch (Cloudflare Workers optimized)
-- ✅ `sdk/go/` - ogen (modern Go with generics, zero-reflection)
+- ✅ `sdk/go/` - Clean Go SDK (independent generation, no legacy dependencies)
 
 **Key improvements:**
 
-- Single unified tooling approach
-- Automated generation workflow
-- No commercial dependencies required
-- Comprehensive testing of generated SDKs
-- Robust handling of complex discriminator unions
+- Complete independence from packages/sdk/js/
+- Clean module paths (git.j9xym.com/opencode-api-go)
+- Automated generation with ./scripts/generate-clean-sdk.sh
+- Comprehensive integration testing
+- Robust API coverage with all endpoints
+- No circular dependencies or import conflicts
 
 ---
 

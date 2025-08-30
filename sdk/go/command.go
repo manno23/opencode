@@ -6,9 +6,9 @@ import (
 	"context"
 	"net/http"
 
-	"git.j9xym.com/openapi-api-go/internal/apijson"
-	"git.j9xym.com/openapi-api-go/internal/requestconfig"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // CommandService contains methods and other services that help with interacting

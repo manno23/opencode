@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"git.j9xym.com/openapi-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal/param"
 )
 
 var encoders sync.Map // map[reflect.Type]encoderFunc

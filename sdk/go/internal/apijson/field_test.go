@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"git.j9xym.com/openapi-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal/param"
 )
 
 type Struct struct {

@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.j9xym.com/openapi-api-go/internal/apijson"
-	"git.j9xym.com/openapi-api-go/internal/param"
-	"git.j9xym.com/openapi-api-go/internal/requestconfig"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // SessionPermissionService contains methods and other services that help with

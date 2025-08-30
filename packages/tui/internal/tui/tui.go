@@ -15,7 +15,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 
-	"git.j9xym.com/openapi-api-go"
+	"git.j9xym.com/opencode-api-go"
 	"github.com/sst/opencode/internal/api"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/commands"
@@ -82,7 +82,7 @@ type Model struct {
 func (a Model) Init() tea.Cmd {
 	var cmds []tea.Cmd
 	// https://github.com/charmbracelet/bubbletea/issues/1440
-	// https://github.com/sst/opencode/issues/127
+	// https://git.j9xym.com/opencode-api-go/issues/127
 	if !util.IsWsl() {
 		cmds = append(cmds, tea.RequestBackgroundColor)
 	}
@@ -911,7 +911,13 @@ func (a Model) View() (string, *tea.Cursor) {
 }
 
 func (a Model) Cleanup() {
+	// Cleanup status component
 	a.status.Cleanup()
+
+	// Cleanup app resources (including SSE event stream)
+	if a.app != nil {
+		a.app.Cleanup()
+	}
 }
 
 func (a Model) home() (string, int, int) {
@@ -1475,7 +1481,17 @@ func (a Model) executeCommand(command commands.Command) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	case commands.AppExitCommand:
 		return a, tea.Quit
+	case commands.SSEDebugCommand:
+		// Show SSE debug information
+		return a, a.app.ShowSSEDebug()
 	}
+
+	// Process any pending SSE events
+	sseCmd := a.app.ProcessPendingEvents()
+	if sseCmd != nil {
+		cmds = append(cmds, sseCmd)
+	}
+
 	return a, tea.Batch(cmds...)
 }
 

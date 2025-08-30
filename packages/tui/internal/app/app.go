@@ -10,8 +10,9 @@ import (
 
 	"log/slog"
 
+	opencode "git.j9xym.com/opencode-api-go"
+	"git.j9xym.com/opencode-api-go/packages/ssestream"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"git.j9xym.com/openapi-api-go"
 	"github.com/sst/opencode/internal/clipboard"
 	"github.com/sst/opencode/internal/commands"
 	"github.com/sst/opencode/internal/components/toast"
@@ -48,6 +49,11 @@ type App struct {
 	InitialAgent      *string
 	InitialSession    *string
 	compactCancel     context.CancelFunc
+
+	// SSE event stream handling
+	eventStream       *ssestream.Stream[opencode.EventListResponse]
+	eventStreamCancel context.CancelFunc
+	eventChan         chan opencode.EventListResponse
 	IsLeaderSequence  bool
 	IsBashMode        bool
 	ScrollSpeed       int
@@ -210,6 +216,15 @@ func New(
 		InitialAgent:   initialAgent,
 		InitialSession: initialSession,
 		ScrollSpeed:    int(configInfo.Tui.ScrollSpeed),
+	}
+
+	// Start the SSE event stream for real-time updates
+	slog.Info("🚀 Initializing SSE event stream during app startup")
+	if err := app.StartEventStream(ctx); err != nil {
+		slog.Error("❌ Failed to start event stream during app initialization", "error", err)
+		// Don't fail the app initialization if SSE fails
+	} else {
+		slog.Info("✅ SSE event stream started successfully during app initialization")
 	}
 
 	return app, nil
@@ -803,8 +818,10 @@ func (a *App) SendPrompt(ctx context.Context, prompt Prompt) (*App, tea.Cmd) {
 		return nil
 	})
 
-	// The actual response will come through SSE
-	// For now, just return success
+	// Response will come through SSE events
+	// Add command to process pending events
+	cmds = append(cmds, a.ProcessPendingEvents())
+
 	return a, tea.Batch(cmds...)
 }
 
@@ -840,8 +857,10 @@ func (a *App) SendCommand(ctx context.Context, command string, args string) (*Ap
 		return nil
 	})
 
-	// The actual response will come through SSE
-	// For now, just return success
+	// Response will come through SSE events
+	// Add command to process pending events
+	cmds = append(cmds, a.ProcessPendingEvents())
+
 	return a, tea.Batch(cmds...)
 }
 
@@ -872,8 +891,10 @@ func (a *App) SendShell(ctx context.Context, command string) (*App, tea.Cmd) {
 		return nil
 	})
 
-	// The actual response will come through SSE
-	// For now, just return success
+	// Response will come through SSE events
+	// Add command to process pending events
+	cmds = append(cmds, a.ProcessPendingEvents())
+
 	return a, tea.Batch(cmds...)
 }
 
@@ -957,6 +978,267 @@ func (a *App) ListProviders(ctx context.Context) ([]opencode.Provider, error) {
 
 	providers := *response
 	return providers.Providers, nil
+}
+
+// SSE Event Stream Handling
+// =============================
+
+// StartEventStream starts the server-sent events stream for real-time updates
+func (a *App) StartEventStream(ctx context.Context) error {
+	if a.eventStream != nil {
+		slog.Warn("Event stream already started, skipping")
+		return fmt.Errorf("event stream already started")
+	}
+
+	baseURL := os.Getenv("OPENCODE_BASE_URL")
+	if baseURL == "" {
+		baseURL = "https://api.opencode.dev" // default
+	}
+	slog.Info("🚀 Starting SSE event stream", "server_url", baseURL)
+
+	// Create a cancellable context for the event stream
+	streamCtx, cancel := context.WithCancel(ctx)
+	a.eventStreamCancel = cancel
+
+	// Start the event stream
+	slog.Info("📡 Connecting to SSE endpoint...")
+	stream := a.Client.Event.ListStreaming(streamCtx)
+	a.eventStream = stream
+
+	// Create a channel for events
+	a.eventChan = make(chan opencode.EventListResponse, 100)
+	slog.Info("📬 Created event channel with buffer size 100")
+
+	// Start goroutine to handle events
+	go a.handleEventStream(streamCtx)
+
+	slog.Info("✅ SSE event stream initialization complete")
+	return nil
+}
+
+// StopEventStream stops the server-sent events stream
+func (a *App) StopEventStream() {
+	if a.eventStreamCancel != nil {
+		slog.Info("Stopping SSE event stream")
+		a.eventStreamCancel()
+		a.eventStreamCancel = nil
+	}
+
+	if a.eventStream != nil {
+		a.eventStream.Close()
+		a.eventStream = nil
+	}
+
+	if a.eventChan != nil {
+		close(a.eventChan)
+		a.eventChan = nil
+	}
+}
+
+// handleEventStream processes incoming SSE events
+func (a *App) handleEventStream(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("❌ Event stream panic", "panic", r)
+		}
+	}()
+
+	slog.Info("🔄 Starting event stream processing loop")
+
+	eventCount := 0
+	for a.eventStream.Next() {
+		eventCount++
+		event := a.eventStream.Current()
+
+		slog.Info("📨 SSE Event Received",
+			"count", eventCount,
+			"type", event.Type,
+			"has_properties", event.Properties != nil)
+
+		select {
+		case <-ctx.Done():
+			slog.Info("🛑 Event stream context cancelled")
+			return
+		default:
+			select {
+			case a.eventChan <- event:
+				slog.Info("✅ Event queued successfully", "type", event.Type)
+			case <-ctx.Done():
+				slog.Info("🛑 Event stream context cancelled while queuing")
+				return
+			default:
+				// Channel is full, skip this event
+				slog.Warn("⚠️  Event channel full, dropping event", "type", event.Type)
+			}
+		}
+	}
+
+	if err := a.eventStream.Err(); err != nil {
+		slog.Error("❌ Event stream error", "error", err)
+	} else {
+		slog.Info("🏁 Event stream ended normally", "total_events", eventCount)
+	}
+}
+
+// GetNextEvent returns the next event from the event stream (non-blocking)
+func (a *App) GetNextEvent() (*opencode.EventListResponse, bool) {
+	if a.eventChan == nil {
+		return nil, false
+	}
+
+	select {
+	case event := <-a.eventChan:
+		return &event, true
+	default:
+		return nil, false
+	}
+}
+
+// ProcessPendingEvents processes all pending events and returns appropriate tea.Cmd
+func (a *App) ProcessPendingEvents() tea.Cmd {
+	return func() tea.Msg {
+		processed := 0
+		for {
+			event, ok := a.GetNextEvent()
+			if !ok {
+				break
+			}
+
+			processed++
+			slog.Info("🎯 Processing pending event", "count", processed, "type", event.Type)
+
+			// Process the event
+			if err := a.processEvent(event); err != nil {
+				slog.Error("❌ Failed to process event", "error", err, "type", event.Type)
+			}
+		}
+
+		if processed > 0 {
+			slog.Info("✅ Processed batch of events", "count", processed)
+		}
+
+		return nil
+	}
+}
+
+// processEvent handles individual SSE events
+func (a *App) processEvent(event *opencode.EventListResponse) error {
+	if event == nil {
+		slog.Warn("⚠️  Received nil event")
+		return nil
+	}
+
+	slog.Info("🔍 Processing SSE event", "type", event.Type, "properties_type", fmt.Sprintf("%T", event.Properties))
+
+	// Handle different event types based on the EventListResponse structure
+	switch event.Type {
+	case opencode.EventListResponseTypeSessionUpdated:
+		slog.Info("📝 Handling session update event")
+		return a.handleSessionUpdate(event)
+	case opencode.EventListResponseTypeMessageUpdated:
+		slog.Info("💬 Handling message update event")
+		return a.handleMessageUpdate(event)
+	case opencode.EventListResponseTypeSessionError:
+		slog.Info("❌ Handling session error event")
+		return a.handleSessionError(event)
+	case opencode.EventListResponseTypePermissionUpdated:
+		slog.Info("🔐 Handling permission update event")
+		return a.handlePermissionUpdate(event)
+	default:
+		slog.Info("❓ Unhandled event type", "type", event.Type, "raw_type", string(event.Type))
+	}
+
+	return nil
+}
+
+// handleSessionUpdate handles session update events
+func (a *App) handleSessionUpdate(event *opencode.EventListResponse) error {
+	if props, ok := event.Properties.(opencode.EventListResponseEventSessionUpdatedProperties); ok {
+		slog.Info("📝 Session updated via SSE", "session_id", props.Info.ID, "title", props.Info.Title)
+		// Could update session data here if needed
+	} else {
+		slog.Warn("⚠️  Session update event has unexpected properties type", "actual_type", fmt.Sprintf("%T", event.Properties))
+	}
+	return nil
+}
+
+// handleMessageUpdate handles message update events
+func (a *App) handleMessageUpdate(event *opencode.EventListResponse) error {
+	if props, ok := event.Properties.(opencode.EventListResponseEventMessageUpdatedProperties); ok {
+		slog.Info("💬 Message updated via SSE", "message_id", props.Info.ID)
+		// Could update message data here if needed
+	} else {
+		slog.Warn("⚠️  Message update event has unexpected properties type", "actual_type", fmt.Sprintf("%T", event.Properties))
+	}
+	return nil
+}
+
+// handleSessionError handles session error events
+func (a *App) handleSessionError(event *opencode.EventListResponse) error {
+	if props, ok := event.Properties.(opencode.EventListResponseEventSessionErrorProperties); ok {
+		slog.Error("❌ Session error via SSE", "error", props.Error)
+		// Could dispatch a toast notification here
+	} else {
+		slog.Warn("⚠️  Session error event has unexpected properties type", "actual_type", fmt.Sprintf("%T", event.Properties))
+	}
+	return nil
+}
+
+// handlePermissionUpdate handles permission update events
+func (a *App) handlePermissionUpdate(event *opencode.EventListResponse) error {
+	if props, ok := event.Properties.(opencode.Permission); ok {
+		slog.Info("🔐 Permission updated via SSE", "permission_id", props.ID, "type", props.Type)
+		// Could update permission state here
+	} else {
+		slog.Warn("⚠️  Permission update event has unexpected properties type", "actual_type", fmt.Sprintf("%T", event.Properties))
+	}
+	return nil
+}
+
+// ShowSSEDebug returns a command that shows SSE debug information
+func (a *App) ShowSSEDebug() tea.Cmd {
+	return func() tea.Msg {
+		slog.Info("🔍 SSE Debug Information")
+		slog.Info("📊 SSE Status", "stream_active", a.eventStream != nil, "channel_active", a.eventChan != nil)
+
+		if a.eventStream != nil {
+			slog.Info("📡 Event stream is active")
+		} else {
+			slog.Warn("⚠️  Event stream is not active")
+		}
+
+		if a.eventChan != nil {
+			slog.Info("📬 Event channel is active", "buffer_size", cap(a.eventChan))
+		} else {
+			slog.Warn("⚠️  Event channel is not active")
+		}
+
+		// Check if we have any pending events
+		if a.eventChan != nil {
+			select {
+			case <-a.eventChan:
+				slog.Info("📨 Found pending event in channel")
+			default:
+				slog.Info("📭 No pending events in channel")
+			}
+		}
+
+		return nil
+	}
+}
+
+// Cleanup performs cleanup operations when the app is shutting down
+func (a *App) Cleanup() {
+	slog.Info("🧹 Cleaning up app resources")
+
+	// Stop the event stream
+	a.StopEventStream()
+
+	// Cancel any ongoing operations
+	if a.compactCancel != nil {
+		a.compactCancel()
+		a.compactCancel = nil
+	}
 }
 
 // func (a *App) loadCustomKeybinds() {

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"git.j9xym.com/openapi-api-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
 )
 
 // Error represents an error that originates from the API, i.e. when a request is

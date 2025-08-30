@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with

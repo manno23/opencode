@@ -3,7 +3,7 @@
   "info": {
     "title": "opencode",
     "description": "opencode api",
-    "version": "1.0.0"
+    "version": "0.0.3"
   },
   "paths": {
     "/event": {
@@ -80,6 +80,61 @@
         "operationId": "config.get",
         "parameters": [],
         "description": "Get config info"
+      }
+    },
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "System health information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "number"
+                    },
+                    "uptime": {
+                      "type": "number"
+                    },
+                    "memory": {
+                      "type": "object",
+                      "properties": {
+                        "used": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        },
+                        "free": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "used",
+                        "total",
+                        "free"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "timestamp",
+                    "uptime",
+                    "memory"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "health.get",
+        "parameters": [],
+        "description": "Get system health information"
       }
     },
     "/session": {

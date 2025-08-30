@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"git.j9xym.com/openapi-api-go/internal/apijson"
-	"git.j9xym.com/openapi-api-go/internal/apiquery"
-	"git.j9xym.com/openapi-api-go/internal/param"
-	"git.j9xym.com/openapi-api-go/internal/requestconfig"
-	"git.j9xym.com/openapi-api-go/option"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/apiquery"
+	"git.j9xym.com/opencode-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 // FileService contains methods and other services that help with interacting with

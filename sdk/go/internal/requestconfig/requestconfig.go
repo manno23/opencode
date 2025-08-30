@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"git.j9xym.com/openapi-api-go/internal"
-	"git.j9xym.com/openapi-api-go/internal/apierror"
-	"git.j9xym.com/openapi-api-go/internal/apiform"
-	"git.j9xym.com/openapi-api-go/internal/apiquery"
-	"git.j9xym.com/openapi-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal"
+	"git.j9xym.com/opencode-api-go/internal/apierror"
+	"git.j9xym.com/opencode-api-go/internal/apiform"
+	"git.j9xym.com/opencode-api-go/internal/apiquery"
+	"git.j9xym.com/opencode-api-go/internal/param"
 )
 
 func getDefaultHeaders() map[string]string {

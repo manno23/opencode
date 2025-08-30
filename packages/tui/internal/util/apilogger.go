@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"sync"
 
-	opencode "git.j9xym.com/openapi-api-go"
+	opencode "git.j9xym.com/opencode-api-go"
 )
 
 func sanitizeValue(val any) any {

@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"git.j9xym.com/openapi-api-go"
+	"git.j9xym.com/opencode-api-go"
 )
 
 // TestFindModelByFullID tests the findModelByFullID function

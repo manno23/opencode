@@ -4,16 +4,15 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"git.j9xym.com/opencode-api-go"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
-	"git.j9xym.com/openapi-api-go"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/commands"
 	"github.com/sst/opencode/internal/components/dialog"
@@ -363,7 +362,8 @@ func (m *messagesComponent) renderView() tea.Cmd {
 		revertedMessageCount := 0
 		revertedToolCount := 0
 		lastAssistantMessage := "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
-		for _, msg := range slices.Backward(m.app.Messages) {
+		for i := len(m.app.Messages) - 1; i >= 0; i-- {
+			msg := m.app.Messages[i]
 			if assistant, ok := msg.Info.(opencode.AssistantMessage); ok {
 				lastAssistantMessage = assistant.ID
 				break

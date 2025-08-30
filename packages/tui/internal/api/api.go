@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"git.j9xym.com/openapi-api-go"
+	"git.j9xym.com/opencode-api-go"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 

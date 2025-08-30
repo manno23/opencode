@@ -3,7 +3,7 @@
 package shared
 
 import (
-	"github.com/sst/opencode-sdk-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
 )
 
 type MessageAbortedError struct {

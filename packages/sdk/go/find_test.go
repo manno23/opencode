@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/internal/testutil"
-	"github.com/sst/opencode-sdk-go/option"
+	"git.j9xym.com/opencode-api-go"
+	"git.j9xym.com/opencode-api-go/internal/testutil"
+	"git.j9xym.com/opencode-api-go/option"
 )
 
 func TestFindFilesWithOptionalParams(t *testing.T) {

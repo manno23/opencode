@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"reflect"
 
-	"git.j9xym.com/openapi-api-go/internal/apijson"
-	"git.j9xym.com/openapi-api-go/internal/param"
-	"git.j9xym.com/openapi-api-go/internal/requestconfig"
-	"git.j9xym.com/openapi-api-go/option"
-	"git.j9xym.com/openapi-api-go/shared"
+	"git.j9xym.com/opencode-api-go/internal/apijson"
+	"git.j9xym.com/opencode-api-go/internal/param"
+	"git.j9xym.com/opencode-api-go/internal/requestconfig"
+	"git.j9xym.com/opencode-api-go/option"
+	"git.j9xym.com/opencode-api-go/shared"
 	"github.com/tidwall/gjson"
 )
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"git.j9xym.com/openapi-api-go"
+	"git.j9xym.com/opencode-api-go"
 	"github.com/sst/opencode/internal/attachment"
 	"github.com/sst/opencode/internal/id"
 )
