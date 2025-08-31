@@ -9,5 +9,20 @@
       "types": "./src/types.ts",
       "import": "./src/client.ts"
     }
-  }
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.12.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.5.0",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "bun build src/client.ts --outfile=dist/client.js --format=esm",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist"
+  ]
 }
