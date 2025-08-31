@@ -1142,11 +1142,17 @@ export namespace Session {
     const proc = spawn(shell, args, {
       cwd: app.path.cwd,
       signal: abort.signal,
+      detached: true,
       stdio: ["ignore", "pipe", "pipe"],
       env: {
         ...process.env,
         TERM: "dumb",
       },
+    })
+
+    abort.signal.addEventListener("abort", () => {
+      if (!proc.pid) return
+      process.kill(-proc.pid)
     })
 
     let output = ""
