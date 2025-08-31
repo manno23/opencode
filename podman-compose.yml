@@ -5,10 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        HOST_UID: ${UID:-1000}
+        HOST_GID: ${GID:-1000}
     container_name: opencode-dev
 
-    # Security: Run as non-root user
-    user: "1001:1001"
+    # Map host UID/GID 1:1 into the container for bind mounts
+    userns: keep-id
+    user: "${UID:-1000}:${GID:-1000}"
 
     # Security: Read-only root filesystem where possible
     read_only: false # Set to true if your app doesn't write to filesystem
@@ -38,29 +42,38 @@ services:
 
     # Network configuration
     ports:
-      - "4000:4000" # Development server
+      - "4000:4000" # TUI client connection (unchanged)
+      # Note: tunnel ports are internal only, no host exposure needed
+
+    # Podman secrets (more secure than environment variables)
+    secrets:
+      - cloudflare_tunnel_token
 
     # Environment variables
     environment:
       - NODE_ENV=development
       - HOSTNAME=0.0.0.0
       - PORT=4000
+      # Secret file path will be available at /run/secrets/cloudflare_tunnel_token
+      - CLOUDFLARE_TUNNEL_TOKEN_FILE=/run/secrets/cloudflare_tunnel_token
       # Add your specific environment variables
+
+# Define secrets at the compose file level
+secrets:
+  cloudflare_tunnel_token:
+    external: true
 
     # Volume mounts with security considerations
     volumes:
       # Source code (bind mount)
-      - type: bind
-        source: .
-        target: /workspace
-        # Security: Bind propagation
-        bind:
-          propagation: rprivate
+      # Use a btrfs subvolume for the workspace for snapshot-friendly dev
+      # Change this path if your subvolume differs
+      - ${OPENCODE_SUBVOL:-/home/jm/data/code/opencode_subvol}:/workspace:Z
 
       # Neovim configuration (optional)
       - type: bind
         source: ${HOME}/.config/nvim
-        target: /home/opencode/.config/nvim
+        target: /home/opencode/.config/nvim:Z,ro
         read_only: true
         bind:
           propagation: rprivate
@@ -68,8 +81,13 @@ services:
       # Node modules cache (named volume for better performance)
       - node_modules_cache:/workspace/node_modules
 
-      # Bun cache
-      - bun_cache:/home/opencode/.bun
+      # Secure credentials directory (read-only)
+      - type: bind
+        source: ${HOME}/.opencode/credentials
+        target: /home/opencode/.credentials:Z,ro
+        read_only: true
+        bind:
+          propagation: rprivate
 
       # Temporary directory (tmpfs for security)
       - type: tmpfs
@@ -97,10 +115,9 @@ services:
       start_period: 40s
 
     # Custom DNS (optional, for security)
-    # dns is disabled to avoid aardvark dependency in rootless mode
-    # dns:
-    #   - 1.1.1.1
-    #   - 8.8.8.8
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 
     # Hostname for container
     hostname: opencode-dev
@@ -116,3 +133,6 @@ volumes:
 networks:
   default:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

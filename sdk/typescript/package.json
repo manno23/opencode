@@ -2,27 +2,22 @@
   "name": "@opencode-ai/sdk-next",
   "version": "1.0.0",
   "type": "module",
-  "main": "./src/client.ts",
-  "types": "./src/types.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/types.ts",
-      "import": "./src/client.ts"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
-  "dependencies": {
-    "openapi-fetch": "^0.12.0"
-  },
-  "devDependencies": {
-    "openapi-typescript": "^7.5.0",
-    "typescript": "^5.8.2"
-  },
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "build": "bun build src/client.ts --outfile=dist/client.js --format=esm",
-    "clean": "rm -rf dist"
-  },
-  "files": [
-    "dist"
-  ]
+    "generate": "npx openapi-typescript ../../schema/openapi.bundled.json --output ./src/types.gen.ts",
+    "build": "cd src && bun build index.ts --outdir ../dist --target node --format esm --splitting && bun run build:types",
+    "build:types": "cd src && bunx tsc --emitDeclarationOnly --outDir ../dist",
+    "test": "bun test",
+    "clean": "rm -rf src/generated dist",
+    "prepublishOnly": "bun run generate && bun run build",
+    "format": "prettier -w src",
+    "format:check": "prettier -c src"
+  }
 }

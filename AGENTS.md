@@ -1,31 +1,29 @@
 # OpenCode Agent Guidelines
 
-## Build/Lint/Test Commands
+## Essential Commands
 
-### Root Package Commands
-
-- **Development server**: `bun run dev`
+- **Dev server**: `bun run dev`
 - **Type checking**: `bun run typecheck`
 - **Generate SDKs**: `bun run generate`
-- **Snapshot testing**: `bun run test:snapshot`
+- **Test snapshots**: `bun run test:snapshot`
 - **Accept snapshots**: `bun run snapshot:accept`
+- **Go SDK test**: `cd sdk/go && go test ./...`
+- **Single Go test**: `cd sdk/go && go test -v -run TestName ./pkg`
 
-### SDK Generation Commands
+## Code Style
 
-- **Generate all SDKs**: `bun run generate:all`
-- **Generate TypeScript SDK**: `bun run generate:ts`
-- **Generate Go SDK**: `bun run generate:go`
-- **Clean generated files**: `bun run clean`
-- **Test SDK generation**: `bun run test`
-- **Test TypeScript SDK**: `bun run test:ts`
-- **Test Go SDK**: `bun run test:go`
+- **TS/JS**: Prefer functional style, immutable data, `const` over `let`, early returns
+- **Go**: `go fmt`, meaningful names, explicit error handling, context for cancellation
+- **Formatting**: Prettier (semi: false, printWidth: 120), ES modules with `.js` extensions
+- **Avoid**: `else`, `try`/`catch`, `any`, unnecessary destructuring
+- **Naming**: camelCase (JS/TS), snake_case (Go vars), PascalCase (Go exports)
 
-### Individual Package Commands
+## Workflow
 
-- **TypeScript packages**: `bun run typecheck` (in each package)
-- **Go SDK testing**: `cd sdk/go && go test ./...`
-- **Single test file**: `cd sdk/go && go test -v ./path/to/package`
-- **Single test function**: `cd sdk/go && go test -v -run TestFunctionName ./path/to/package`
+1. Understand problem deeply first
+2. Investigate codebase thoroughly
+3. Plan incrementally, test frequently
+4. Run typecheck and snapshot tests before completion
 
 ## Code Style Guidelines
 

@@ -130,9 +130,6 @@ Provide an optimized version that is clearer, more specific, and more likely to 
       msgs = applyCaching(msgs, providerID)
     }
 
-    // Apply prompt optimization if enabled
-    msgs = await optimizePrompts(msgs, providerID, modelID)
-
     return msgs
   }
 

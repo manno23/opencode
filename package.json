@@ -7,7 +7,11 @@
   "scripts": {
     "dev": "bun run --conditions=development packages/opencode/src/index.ts",
     "typecheck": "bun run --filter='*' typecheck",
-    "generate": "(cd packages/sdk && ./js/script/generate.ts) && (cd packages/sdk/stainless && ./generate.ts)",
+    "generate": "(cd sdk && bun run generate:all)",
+    "sdk:ts:bundle": "npx redocly bundle sdk/schema/openapi.json -o sdk/schema/openapi.bundled.json --dereferenced",
+    "sdk:ts:generate": "npx openapi-typescript sdk/schema/openapi.bundled.json --output sdk/typescript/src/types.gen.ts",
+    "sdk:ts:build": "cd sdk/typescript && bun run build",
+    "sdk:ts:all": "bun run sdk:ts:bundle && bun run sdk:ts:generate && bun run sdk:ts:build",
     "postinstall": "bash -c 'if [ -f ./script/hooks ]; then ./script/hooks; fi'",
     "test:snapshot": "bun test",
     "snapshot:accept": "bun test --update-snapshots"
@@ -33,7 +37,7 @@
   "dependencies": {
     "@redocly/cli": "2.0.8",
     "bunx": "0.1.0",
-    "pulumi-stripe": "0.0.24"
+    "openapi-typescript": "7.9.1"
   },
   "devDependencies": {
     "prettier": "3.5.3"

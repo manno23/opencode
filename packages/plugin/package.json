@@ -16,8 +16,7 @@
     "dist"
   ],
   "dependencies": {
-    "@opencode-ai/sdk": "link:@opencode-ai/sdk",
-    "@opencode-ai/sdk-next": "link:@opencode-ai/sdk-next"
+    "@opencode-ai/sdk-next": "workspace:sdk/typescript"
   },
   "devDependencies": {
     "@tsconfig/node22": "catalog:",
