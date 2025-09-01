@@ -1,4 +1,4 @@
-package opencode_test
+package opencode
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"git.j9xym.com/opencode-api-go"
 	"git.j9xym.com/opencode-api-go/option"
 )
 

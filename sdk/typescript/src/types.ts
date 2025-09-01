@@ -11,7 +11,6 @@ export type Provider = components["schemas"]["Provider"] | unknown
 export type Permission = components["schemas"]["Permission"] | unknown
 export type Auth = components["schemas"]["Auth"] | unknown
 export type Config = components["schemas"]["Config"] | unknown
-export type 
 
 // Optional helpers
 export type GetAppResponse = paths["/app"]["get"]["responses"]["200"] extends {
