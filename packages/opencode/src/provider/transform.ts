@@ -155,7 +155,7 @@ Provide an optimized version that is clearer, more specific, and more likely to 
     }
 
     if (modelID.includes("gpt-5") && !modelID.includes("gpt-5-chat")) {
-      result["reasoningEffort"] = "minimal"
+      result["reasoningEffort"] = "high"
       if (providerID !== "azure") {
         result["textVerbosity"] = "low"
       }
