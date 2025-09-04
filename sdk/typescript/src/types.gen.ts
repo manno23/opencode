@@ -72,23 +72,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Get system health information */
-        get: operations["health.get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/session": {
         parameters: {
             query?: never;
@@ -418,23 +401,6 @@ export interface paths {
         trace?: never;
     };
     "/file": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description List files and directories */
-        get: operations["file.list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/file/content": {
         parameters: {
             query?: never;
             header?: never;
@@ -2309,7 +2275,6 @@ export interface components {
             hostname: string;
             git: boolean;
             path: {
-                home: string;
                 config: string;
                 data: string;
                 root: string;
@@ -2581,7 +2546,6 @@ export interface components {
                  */
                 scroll_speed: number;
             };
-            /** @description Command configuration, see https://opencode.ai/docs/commands */
             command?: {
                 [key: string]: {
                     template: string;
@@ -2902,14 +2866,6 @@ export interface components {
                             [key: string]: string;
                         };
                     }[];
-                };
-                promptOptimization?: {
-                    /** @default false */
-                    enabled: boolean;
-                    model?: {
-                        providerID: string;
-                        modelID: string;
-                    };
                 };
             };
         };
@@ -3365,13 +3321,6 @@ export interface components {
                     };
                 };
             };
-        };
-        FileNode: {
-            name: string;
-            path: string;
-            /** @enum {string} */
-            type: "file" | "directory";
-            ignored: boolean;
         };
         File: {
             path: string;
@@ -3900,7 +3849,6 @@ export interface operations {
                         hostname: string;
                         git: boolean;
                         path: {
-                            home: string;
                             config: string;
                             data: string;
                             root: string;
@@ -4211,7 +4159,6 @@ export interface operations {
                              */
                             scroll_speed: number;
                         };
-                        /** @description Command configuration, see https://opencode.ai/docs/commands */
                         command?: {
                             [key: string]: {
                                 template: string;
@@ -4533,43 +4480,6 @@ export interface operations {
                                     };
                                 }[];
                             };
-                            promptOptimization?: {
-                                /** @default false */
-                                enabled: boolean;
-                                model?: {
-                                    providerID: string;
-                                    modelID: string;
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
-    "health.get": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description System health information */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        status: string;
-                        timestamp: number;
-                        uptime: number;
-                        memory: {
-                            used: number;
-                            total: number;
-                            free: number;
                         };
                     };
                 };
@@ -6418,34 +6328,6 @@ export interface operations {
                                 };
                             };
                         };
-                    }[];
-                };
-            };
-        };
-    };
-    "file.list": {
-        parameters: {
-            query: {
-                path: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Files and directories */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        name: string;
-                        path: string;
-                        /** @enum {string} */
-                        type: "file" | "directory";
-                        ignored: boolean;
                     }[];
                 };
             };

@@ -3,6 +3,8 @@
 */generated/
 */dist/
 
+schema/
+
 # Dependencies
 node_modules/
 */node_modules/

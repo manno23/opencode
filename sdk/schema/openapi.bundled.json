@@ -82,61 +82,6 @@
         "description": "Get config info"
       }
     },
-    "/health": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "System health information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "timestamp": {
-                      "type": "number"
-                    },
-                    "uptime": {
-                      "type": "number"
-                    },
-                    "memory": {
-                      "type": "object",
-                      "properties": {
-                        "used": {
-                          "type": "number"
-                        },
-                        "total": {
-                          "type": "number"
-                        },
-                        "free": {
-                          "type": "number"
-                        }
-                      },
-                      "required": [
-                        "used",
-                        "total",
-                        "free"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "status",
-                    "timestamp",
-                    "uptime",
-                    "memory"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "operationId": "health.get",
-        "parameters": [],
-        "description": "Get system health information"
-      }
-    },
     "/session": {
       "get": {
         "responses": {
@@ -1199,37 +1144,6 @@
       }
     },
     "/file": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Files and directories",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FileNode"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "operationId": "file.list",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "path",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "description": "List files and directories"
-      }
-    },
-    "/file/content": {
       "get": {
         "responses": {
           "200": {
@@ -3285,9 +3199,6 @@
           "path": {
             "type": "object",
             "properties": {
-              "home": {
-                "type": "string"
-              },
               "config": {
                 "type": "string"
               },
@@ -3305,7 +3216,6 @@
               }
             },
             "required": [
-              "home",
               "config",
               "data",
               "root",
@@ -3380,8 +3290,7 @@
               "required": [
                 "template"
               ]
-            },
-            "description": "Command configuration, see https://opencode.ai/docs/commands"
+            }
           },
           "plugin": {
             "type": "array",
@@ -3821,33 +3730,6 @@
                     }
                   }
                 }
-              },
-              "promptOptimization": {
-                "type": "object",
-                "properties": {
-                  "enabled": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "model": {
-                    "type": "object",
-                    "properties": {
-                      "providerID": {
-                        "type": "string"
-                      },
-                      "modelID": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "providerID",
-                      "modelID"
-                    ]
-                  }
-                },
-                "required": [
-                  "enabled"
-                ]
               }
             }
           }
@@ -4630,33 +4512,6 @@
           "name",
           "kind",
           "location"
-        ]
-      },
-      "FileNode": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "file",
-              "directory"
-            ]
-          },
-          "ignored": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name",
-          "path",
-          "type",
-          "ignored"
         ]
       },
       "File": {
