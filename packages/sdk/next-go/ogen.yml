@@ -1,0 +1,12 @@
+parser:
+  infer_types: true
+
+generator:
+  features:
+    disable_all: true  # Start fresh, enable selectively
+    enable:
+      - "paths/client"               # Generate client code
+      - "client/request/validation"  # Enable request validation
+      - "webhooks/client"
+      - "debug/example_tests"
+  ignore_not_implemented: ["sum types with same names"]
