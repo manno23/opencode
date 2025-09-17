@@ -3,6 +3,7 @@ module git.j9xym.com/opencode-api-go
 go 1.21
 
 require (
+	github.com/sst/opencode-sdk-go v0.8.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/tidwall/sjson v1.2.5
 )

@@ -1,3 +1,5 @@
+github.com/sst/opencode-sdk-go v0.8.0 h1:2q5j7juMnP6WPwE50MsCw2rhX9j5EC/ArvG4LoAHxms=
+github.com/sst/opencode-sdk-go v0.8.0/go.mod h1:uagorfAHZsVy6vf0xY6TlQraM4uCILdZ5tKKhl1oToM=
 github.com/tidwall/gjson v1.14.2/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.14.4 h1:uo0p8EbA09J7RQaflQ1aBRffTR7xedD2bcIVSYxLnkM=
 github.com/tidwall/gjson v1.14.4/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=

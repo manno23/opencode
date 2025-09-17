@@ -25,7 +25,7 @@ This SDK uses a **hybrid generation approach** that balances automation with con
 For standalone usage:
 
 ```go
-go get git.j9xym.com/opencode-api-go
+go get github.com/sst/opencode-api-go
 ```
 
 For development within the opencode monorepo, use the Go workspace:
@@ -45,7 +45,7 @@ package main
 import (
     "context"
     "fmt"
-    "git.j9xym.com/opencode-api-go"
+    "github.com/sst/opencode-api-go"
 )
 
 func main() {
@@ -116,7 +116,7 @@ oapi-codegen -generate types -package opencode schema/openapi.bundled.json > sdk
 rsync -a --exclude 'go.mod' packages/sdk/go/ sdk/go/
 
 # 6. Update module paths
-find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
+find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/github.com/sst\/opencode-api-go/g' {} +
 
 # 7. Tidy and build
 cd sdk/go && go mod tidy && go build ./...
@@ -183,7 +183,7 @@ sdk/go/
 The `compat` package provides adaptors for TUI integration:
 
 ```go
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go/compat"
 
 // Convert generated types to TUI-compatible types
 func handleConfig(generatedConfig *opencode.Config) {
@@ -203,14 +203,14 @@ func logMessage(params compat.AppLogParams) error {
 **Before (old SDK):**
 
 ```go
-import "github.com/sst/opencode-sdk-go"
+import "github.com/sst/opencode-api-go"
 ```
 
 **After (hybrid SDK):**
 
 ```go
-import "git.j9xym.com/opencode-api-go"
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go"
+import "github.com/sst/opencode-api-go/compat"
 ```
 
 ---
@@ -285,7 +285,7 @@ go version  # Should be 1.24+
 grep -r "opencode.local-sdk-go" sdk/go/  # Should return nothing
 
 # Fix if needed
-find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/git.j9xym.com\/opencode-api-go/g' {} +
+find sdk/go -name "*.go" -exec sed -i 's/opencode.local-sdk-go/github.com/sst\/opencode-api-go/g' {} +
 ```
 
 **Workspace sync problems:**
@@ -313,7 +313,7 @@ go test ./compat/...
 
 - [ ] `go.work` file includes both `sdk/go` and `packages/tui`
 - [ ] `sdk/go/types.gen.go` exists and compiles
-- [ ] Import paths use `git.j9xym.com/opencode-api-go`
+- [ ] Import paths use `github.com/sst/opencode-api-go`
 - [ ] `go build ./...` passes from project root
 - [ ] TUI application still compiles with compatibility layer
 

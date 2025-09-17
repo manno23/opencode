@@ -8,12 +8,12 @@ import (
 	"net/url"
 	"reflect"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
-	"github.com/sst/opencode-sdk-go/shared"
+	"github.com/sst/opencode-api-go/internal/apijson"
+	"github.com/sst/opencode-api-go/internal/apiquery"
+	"github.com/sst/opencode-api-go/internal/param"
+	"github.com/sst/opencode-api-go/internal/requestconfig"
+	"github.com/sst/opencode-api-go/option"
+	"github.com/sst/opencode-api-go/shared"
 	"github.com/tidwall/gjson"
 )
 

@@ -13,7 +13,6 @@ import { readFileSync, writeFileSync, } from "fs"
 const openapiPath = path.join(dir, "openapi.json")
 
 
-await $`echo "1. Run something here BEFORE the project is built and the current binary produces the OpenAPI spec of its server implementation."`
 await $`bun run --conditions=development ../../opencode/src/index.ts generate > openapi.json`
 
 await $`echo "Updating the OpenAPI spec to meet criteria of the generator..."`

@@ -3,7 +3,7 @@ package opencode
 import (
 	"context"
 	"encoding/json"
-	apiPkg "github.com/sst/opencode-sdk-go/api"
+	apiPkg "github.com/sst/opencode-api-go/api"
 )
 
 // F helper
@@ -25,8 +25,8 @@ func NewClient(serverURL string, opts ...apiPkg.ClientOption) (*Client, error) {
 	client := &Client{apiClient: apiClient}
 	client.App = &AppService{client: client}
 	client.Session = &SessionService{
-		client:      client,
-		Permissions: &SessionPermissionsService{client: client},
+		Client:      client,
+		Permissions: &SessionPermissionsService.Respond(client),
 	}
 	return client, nil
 }
@@ -94,41 +94,8 @@ func (s *AppService) Log(ctx context.Context, params AppLogParams) (any, error) 
 	return s.client.apiClient.AppLog(ctx, optReq, apiParams)
 }
 
-// Session service
-type SessionService struct {
-	client      *Client
-	Permissions *SessionPermissionsService
-}
-
 type SessionPermissionsService struct {
 	client *Client
-}
-
-func (s *SessionService) Get(ctx context.Context, id string, params any) (Session, error) {
-	apiParams := apiPkg.SessionGetParams{ID: id}
-	apiSession, err := s.client.apiClient.SessionGet(ctx, apiParams)
-	if err != nil {
-		return Session{}, err
-	}
-	var parentID string
-	if apiSession.ParentID.Set {
-		parentID = apiSession.ParentID.Value
-	}
-	var share *SessionShare
-	if apiSession.Share.Set {
-		share = &SessionShare{} // Populate fields as needed
-	}
-	var revert *SessionRevert
-	if apiSession.Revert.Set {
-		revert = &SessionRevert{} // Populate fields as needed
-	}
-	return Session{
-		ID:       apiSession.ID,
-		ParentID: parentID,
-		Title:    apiSession.Title,
-		Share:    share,
-		Revert:   revert,
-	}, nil
 }
 
 func (s *SessionPermissionsService) Respond(ctx context.Context, sessionID string, permissionID string, body SessionPermissionRespondParams) (any, error) {
@@ -151,42 +118,6 @@ func (s *SessionPermissionsService) Respond(ctx context.Context, sessionID strin
 	}
 
 	return s.client.apiClient.PostSessionByIdPermissionsByPermissionID(ctx, apiPkg.OptPostSessionByIdPermissionsByPermissionIDReq{Value: apiBody, Set: true}, apiParams)
-}
-
-// Session types
-type Session struct {
-	ID       string
-	ParentID string
-	Title    string
-	Share    *SessionShare
-	Revert   *SessionRevert
-}
-
-type SessionShare struct {
-	// Add fields as needed
-}
-
-type SessionRevert struct {
-	// Add fields as needed
-}
-
-type SessionPermissionRespondParams struct {
-	Response *int
-}
-
-const (
-	SessionPermissionRespondParamsResponseOnce   = 0
-	SessionPermissionRespondParamsResponseAlways = 1
-	SessionPermissionRespondParamsResponseReject = 2
-)
-
-// Permission
-type Permission struct {
-	ID        string
-	SessionID string
-	Metadata  *map[string]any
-	MessageID string
-	CallID    string
 }
 
 // AppLog response placeholder

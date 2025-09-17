@@ -19,7 +19,7 @@ export class OpenCodeClient {
     const url = `${this.baseUrl}${path}`
     const headers = {
       "Content-Type": "application/json",
-      "User-Agent": "opencode-sdk-typescript/1.0.0",
+      "User-Agent": "opencode-api-typescript/1.0.0",
       ...this.headers,
     }
     const resp = await this.fetch(url, {

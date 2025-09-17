@@ -87,6 +87,12 @@ type Invoker interface {
 	//
 	// GET /find
 	FindText(ctx context.Context, params FindTextParams) ([]FindTextOKItem, error)
+	// HealthGet invokes health.get operation.
+	//
+	// Get system health information.
+	//
+	// GET /health
+	HealthGet(ctx context.Context, params HealthGetParams) (*HealthGetOK, error)
 	// PathGet invokes path.get operation.
 	//
 	// Get the current path.
@@ -1049,6 +1055,62 @@ func (c *Client) sendFindText(ctx context.Context, params FindTextParams) (res [
 	defer resp.Body.Close()
 
 	result, err := decodeFindTextResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// HealthGet invokes health.get operation.
+//
+// Get system health information.
+//
+// GET /health
+func (c *Client) HealthGet(ctx context.Context, params HealthGetParams) (*HealthGetOK, error) {
+	res, err := c.sendHealthGet(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendHealthGet(ctx context.Context, params HealthGetParams) (res *HealthGetOK, err error) {
+
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/health"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "directory" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "directory",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Directory.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeHealthGetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

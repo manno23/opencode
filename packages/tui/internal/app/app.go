@@ -10,8 +10,8 @@ import (
 
 	"log/slog"
 
-	opencode "git.j9xym.com/opencode-api-go"
-	"git.j9xym.com/opencode-api-go/packages/ssestream"
+	opencode "github.com/sst/opencode-api-go"
+	"github.com/sst/opencode-api-go/packages/ssestream"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/sst/opencode/internal/clipboard"
 	"github.com/sst/opencode/internal/commands"

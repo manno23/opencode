@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"git.j9xym.com/opencode-api-go"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	opencode "github.com/sst/opencode-api-go"
 )
 
 type ExecuteCommandMsg Command

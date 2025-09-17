@@ -17,6 +17,7 @@ const (
 	FindFilesOperation                                OperationName = "FindFiles"
 	FindSymbolsOperation                              OperationName = "FindSymbols"
 	FindTextOperation                                 OperationName = "FindText"
+	HealthGetOperation                                OperationName = "HealthGet"
 	PathGetOperation                                  OperationName = "PathGet"
 	PostSessionByIdPermissionsByPermissionIDOperation OperationName = "PostSessionByIdPermissionsByPermissionID"
 	ProjectCurrentOperation                           OperationName = "ProjectCurrent"

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sst/opencode-sdk-go/internal/param"
+	"github.com/sst/opencode-api-go/internal/param"
 )
 
 type Struct struct {

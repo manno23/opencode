@@ -3,13 +3,12 @@ package opencode
 import (
 	"context"
 
-	"git.j9xym.com/opencode-api-go"
-	"git.j9xym.com/opencode-api-go/option"
+	"github.com/sst/opencode-api-go"
 )
 
 // NewClient creates a new API client with the given base URL
 func NewClient(baseURL string) (*opencode.Client, error) {
-	return opencode.NewClient(option.WithBaseURL(baseURL)), nil
+	return opencode.NewClient(baseURL)
 }
 
 // SessionInit initializes a new session (placeholder for future implementation)

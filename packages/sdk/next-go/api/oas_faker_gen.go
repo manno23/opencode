@@ -696,6 +696,49 @@ func (s *FindTextOKItemSubmatchesItemMatch) SetFake() {
 }
 
 // SetFake set fake values.
+func (s *HealthGetOK) SetFake() {
+	{
+		{
+			s.Status = "string"
+		}
+	}
+	{
+		{
+			s.Timestamp = float64(0)
+		}
+	}
+	{
+		{
+			s.Uptime = float64(0)
+		}
+	}
+	{
+		{
+			s.Memory.SetFake()
+		}
+	}
+}
+
+// SetFake set fake values.
+func (s *HealthGetOKMemory) SetFake() {
+	{
+		{
+			s.Used = float64(0)
+		}
+	}
+	{
+		{
+			s.Total = float64(0)
+		}
+	}
+	{
+		{
+			s.Free = float64(0)
+		}
+	}
+}
+
+// SetFake set fake values.
 func (s *Message) SetFake() {
 	var variant AssistantMessage
 

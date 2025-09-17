@@ -1,0 +1,10 @@
+{
+  "total_endpoints": 3,
+  "implemented": 3,
+  "tested": 0,
+  "endpoint_coverage": {
+    "/api/v1/app/log": 1,
+    "/api/v1/session/get": 1,
+    "/api/v1/session/permissions/respond": 1
+  }
+}

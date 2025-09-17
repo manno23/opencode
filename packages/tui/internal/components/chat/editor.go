@@ -14,7 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/google/uuid"
-	"git.j9xym.com/opencode-api-go"
+	"github.com/sst/opencode-api-go"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/attachment"
 	"github.com/sst/opencode/internal/clipboard"

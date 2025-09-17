@@ -62,7 +62,7 @@ err := compat.LogMessage(ctx, client, compatParams)
 ### Config conversion
 
 ```go
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go/compat"
 
 // Convert from generated SDK to TUI-compatible
 func handleGeneratedConfig(sdkConfig *opencode.Config) {
@@ -78,7 +78,7 @@ func handleGeneratedConfig(sdkConfig *opencode.Config) {
 ### Logging integration
 
 ```go
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go/compat"
 
 // TUI logging with compatibility layer
 func logToAPI(client *opencode.Client, level string, message string) {
@@ -100,7 +100,7 @@ func logToAPI(client *opencode.Client, level string, message string) {
 ### Client initialization
 
 ```go
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go/compat"
 
 // Simplified client creation
 func initAPIClient(baseURL string) *opencode.Client {
@@ -128,7 +128,7 @@ func createSession(client *opencode.Client) error {
 **Before:**
 
 ```go
-import "github.com/sst/opencode-sdk-go"
+import "github.com/sst/opencode-api-go"
 
 client := opencode.NewClient(url)
 sessions, err := client.Session.List(context.TODO())
@@ -137,8 +137,8 @@ sessions, err := client.Session.List(context.TODO())
 **After:**
 
 ```go
-import "git.j9xym.com/opencode-api-go"
-import "git.j9xym.com/opencode-api-go/compat"
+import "github.com/sst/opencode-api-go"
+import "github.com/sst/opencode-api-go/compat"
 
 client := compat.NewClient(url)  // Compatibility wrapper
 sessions, err := client.Session.List(context.TODO()) // Direct SDK call

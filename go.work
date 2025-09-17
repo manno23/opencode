@@ -1,7 +1,6 @@
 go 1.24.4
 
 use (
+	./packages/sdk/next-go
 	./packages/tui
-	./packages/tui/input
-	./sdk/go
 )

@@ -1,5 +1,5 @@
-import { createOpenCodeClient } from "@opencode-ai/sdk-next"
-import type { Project, Model, Provider, Permission, UserMessage, Part, Auth, Config, Event } from "@opencode-ai/sdk-next"
+import { createOpenCodeClient } from "@opencode-ai/sdk"
+import type { Project, Model, Provider, Permission, UserMessage, Part, Auth, Config, Event } from "@opencode-ai/sdk"
 import type { BunShell } from "./shell"
 
 export type PluginInput = {

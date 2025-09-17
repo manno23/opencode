@@ -2,7 +2,7 @@ import type { Hooks, Plugin as PluginInstance } from "@opencode-ai/plugin"
 import { Config } from "../config/config"
 import { Bus } from "../bus"
 import { Log } from "../util/log"
-import { createOpenCodeClient } from "@opencode-ai/sdk-next"
+import { createOpencodeClient } from "@opencode-ai/sdk"
 import { Server } from "../server/server"
 import { BunProc } from "../bun"
 import { Instance } from "../project/instance"
@@ -12,9 +12,9 @@ export namespace Plugin {
   const log = Log.create({ service: "plugin" })
 
   const state = Instance.state(async () => {
-    const client = createOpenCodeClient({
+    const client = createOpencodeClient({
       baseUrl: "http://localhost:4096",
-      fetch: async (...args ) => Server.App.fetch(...args),
+      fetch: async (...args) => Server.App.fetch(...args),
     })
     const config = await Config.get()
     const hooks = []

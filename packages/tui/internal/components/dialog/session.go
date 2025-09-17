@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/v2/textinput"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/muesli/reflow/truncate"
-	"git.j9xym.com/opencode-api-go"
+	"github.com/sst/opencode-api-go"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/components/list"
 	"github.com/sst/opencode/internal/components/modal"

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"git.j9xym.com/opencode-api-go"
+	"github.com/sst/opencode-api-go"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"

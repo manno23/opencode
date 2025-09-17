@@ -9,3 +9,6 @@ export function createOpencodeClient(config?: Config) {
   const client = createClient(config)
   return new OpencodeClient({ client })
 }
+
+// Alias for backward compatibility with incorrect capitalization
+export { createOpencodeClient as createOpenCodeClient }

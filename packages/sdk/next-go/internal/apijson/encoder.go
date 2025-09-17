@@ -10,20 +10,18 @@ import (
 	"strings"
 	"sync"
 	"time"
-
+	"github.com/sst/opencode-api-go/internal/param"
 	"github.com/tidwall/sjson"
-
-	"github.com/sst/opencode-sdk-go/internal/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc
 
-func Marshal(value interface{}) ([]byte, error) {
+func Marshal(value any) ([]byte, error) {
 	e := &encoder{dateFormat: time.RFC3339}
 	return e.marshal(value)
 }
 
-func MarshalRoot(value interface{}) ([]byte, error) {
+func MarshalRoot(value any) ([]byte, error) {
 	e := &encoder{root: true, dateFormat: time.RFC3339}
 	return e.marshal(value)
 }
@@ -47,7 +45,7 @@ type encoderEntry struct {
 	root       bool
 }
 
-func (e *encoder) marshal(value interface{}) ([]byte, error) {
+func (e *encoder) marshal(value any) ([]byte, error) {
 	val := reflect.ValueOf(value)
 	if !val.IsValid() {
 		return nil, nil

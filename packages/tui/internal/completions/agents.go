@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"git.j9xym.com/opencode-api-go"
+	"github.com/sst/opencode-api-go"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/styles"
 	"github.com/sst/opencode/internal/theme"

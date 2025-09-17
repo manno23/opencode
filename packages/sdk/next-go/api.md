@@ -513,7 +513,66 @@ type SymbolSourceRangeEnd struct {
 type ClientOption interface {
     // TODO: Implement
 }
+
+
+
+
+
+
+
+
+type MessageUnion
+type PartUnion
+
+type Project
+
+type Agent struct {
+	ID    string  ` + "`json:\"id\"`" + `
+	Name  string  ` + "`json:\"name\"`" + `
+	Type  string  ` + "`json:\"type\"`" + `
+	State string  ` + "`json:\"state\"`" + `
+	Mode  string  ` + "`json:\"mode\"`" + `
+	Model *Model  ` + "`json:\"model\"`" + `
+}
+
+type Provider struct {
+	ID     string   ` + "`json:\"id\"`" + `
+	Name   string   ` + "`json:\"name\"`" + `
+	Type   string   ` + "`json:\"type\"`" + `
+	Models []*Model ` + "`json:\"models\"`" + `
+}
+
+type Model struct {
+	ID       string ` + "`json:\"id\"`" + `
+	Name     string ` + "`json:\"name\"`" + `
+	Provider string ` + "`json:\"provider\"`" + `
+}
+
+type EventListResponse struct {
+	// This field can have the runtime type of
+	// [EventListResponseEventInstallationUpdatedProperties],
+	// [EventListResponseEventLspClientDiagnosticsProperties],
+	// [EventListResponseEventMessageUpdatedProperties],
+	// [EventListResponseEventMessageRemovedProperties],
+	// [EventListResponseEventMessagePartUpdatedProperties],
+	// [EventListResponseEventMessagePartRemovedProperties], [Permission],
+	// [EventListResponseEventPermissionRepliedProperties],
+	// [EventListResponseEventFileEditedProperties],
+	// [EventListResponseEventSessionUpdatedProperties],
+	// [EventListResponseEventSessionDeletedProperties],
+	// [EventListResponseEventSessionIdleProperties],
+	// [EventListResponseEventSessionErrorProperties], [interface{}].
+	Properties interface{}           `json:"properties,required"`
+	Type       EventListResponseType `json:"type,required"`
+	JSON       eventListResponseJSON `json:"-"`
+	union      EventListResponseUnion
+}
+
+
+
 ```
+
+
 
 ## TODO
 

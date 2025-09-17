@@ -1659,6 +1659,89 @@ func (s *FindTextOKItemSubmatchesItemMatch) SetText(val string) {
 	s.Text = val
 }
 
+type HealthGetOK struct {
+	Status    string            `json:"status"`
+	Timestamp float64           `json:"timestamp"`
+	Uptime    float64           `json:"uptime"`
+	Memory    HealthGetOKMemory `json:"memory"`
+}
+
+// GetStatus returns the value of Status.
+func (s *HealthGetOK) GetStatus() string {
+	return s.Status
+}
+
+// GetTimestamp returns the value of Timestamp.
+func (s *HealthGetOK) GetTimestamp() float64 {
+	return s.Timestamp
+}
+
+// GetUptime returns the value of Uptime.
+func (s *HealthGetOK) GetUptime() float64 {
+	return s.Uptime
+}
+
+// GetMemory returns the value of Memory.
+func (s *HealthGetOK) GetMemory() HealthGetOKMemory {
+	return s.Memory
+}
+
+// SetStatus sets the value of Status.
+func (s *HealthGetOK) SetStatus(val string) {
+	s.Status = val
+}
+
+// SetTimestamp sets the value of Timestamp.
+func (s *HealthGetOK) SetTimestamp(val float64) {
+	s.Timestamp = val
+}
+
+// SetUptime sets the value of Uptime.
+func (s *HealthGetOK) SetUptime(val float64) {
+	s.Uptime = val
+}
+
+// SetMemory sets the value of Memory.
+func (s *HealthGetOK) SetMemory(val HealthGetOKMemory) {
+	s.Memory = val
+}
+
+type HealthGetOKMemory struct {
+	Used  float64 `json:"used"`
+	Total float64 `json:"total"`
+	Free  float64 `json:"free"`
+}
+
+// GetUsed returns the value of Used.
+func (s *HealthGetOKMemory) GetUsed() float64 {
+	return s.Used
+}
+
+// GetTotal returns the value of Total.
+func (s *HealthGetOKMemory) GetTotal() float64 {
+	return s.Total
+}
+
+// GetFree returns the value of Free.
+func (s *HealthGetOKMemory) GetFree() float64 {
+	return s.Free
+}
+
+// SetUsed sets the value of Used.
+func (s *HealthGetOKMemory) SetUsed(val float64) {
+	s.Used = val
+}
+
+// SetTotal sets the value of Total.
+func (s *HealthGetOKMemory) SetTotal(val float64) {
+	s.Total = val
+}
+
+// SetFree sets the value of Free.
+func (s *HealthGetOKMemory) SetFree(val float64) {
+	s.Free = val
+}
+
 // Ref: #/components/schemas/Message
 // Message represents sum type.
 type Message struct {

@@ -63,6 +63,11 @@ type FindTextParams struct {
 	Pattern   string
 }
 
+// HealthGetParams is parameters of health.get operation.
+type HealthGetParams struct {
+	Directory OptString
+}
+
 // PathGetParams is parameters of path.get operation.
 type PathGetParams struct {
 	Directory OptString

@@ -11,8 +11,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	flag "github.com/spf13/pflag"
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/sst/opencode-api-go"
+	"github.com/sst/opencode-api-go/option"
 	"github.com/sst/opencode/internal/api"
 	"github.com/sst/opencode/internal/app"
 	"github.com/sst/opencode/internal/clipboard"
@@ -61,7 +61,10 @@ func main() {
 		}
 	}
 
-	httpClient := opencode.NewClient(option.WithBaseURL(url))
+	httpClient, err := opencode.NewClient(url)
+	if err != nil {
+		panic(err)
+	}
 
 	var agents []opencode.Agent
 	var path *opencode.Path

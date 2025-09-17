@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sst/opencode-sdk-go/internal/param"
+	"github.com/sst/opencode-api-go/internal/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc

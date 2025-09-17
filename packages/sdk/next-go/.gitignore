@@ -1,0 +1,6 @@
+# Generated client
+api/
+
+# Go binaries
+*.exe
+*.bin

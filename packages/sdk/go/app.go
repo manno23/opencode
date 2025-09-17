@@ -8,7 +8,7 @@ import (
 	"net/url"
 
 	"git.j9xym.com/opencode-api-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
+	"git.j9xym.com/opencode-api-go/internal/apiquery"
 	"git.j9xym.com/opencode-api-go/internal/param"
 	"git.j9xym.com/opencode-api-go/internal/requestconfig"
 	"git.j9xym.com/opencode-api-go/option"
