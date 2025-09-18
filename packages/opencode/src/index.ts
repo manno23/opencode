@@ -20,7 +20,6 @@ import { McpCommand } from "./cli/cmd/mcp"
 import { GithubCommand } from "./cli/cmd/github"
 import { PlanCommand } from "./cli/cmd/plan"
 import { ExportCommand } from "./cli/cmd/export"
-import { PlanCommand } from "./cli/cmd/plan"
 
 const cancel = new AbortController()
 
