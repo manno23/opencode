@@ -872,7 +872,7 @@ func (a Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			break
 		}
-		cmds = append(cmds, api.Reply(context.Background(), a.app.Client, response))
+		cmds = append(cmds, api.Reply(context.Background(), a.app.Client.Client, response))
 	}
 
 	s, cmd := a.status.Update(msg)

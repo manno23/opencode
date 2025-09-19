@@ -13,6 +13,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/sst/opencode-sdk-go"
+	"github.com/sst/opencode/internal/app/client"
 	"github.com/sst/opencode/internal/clipboard"
 	"github.com/sst/opencode/internal/commands"
 	"github.com/sst/opencode/internal/components/toast"
@@ -34,7 +35,7 @@ type App struct {
 	Version           string
 	StatePath         string
 	Config            *opencode.Config
-	Client            *opencode.Client
+	Client            *client.Client
 	State             *State
 	AgentIndex        int
 	Provider          *opencode.Provider
@@ -201,7 +202,7 @@ func New(
 		StatePath:      appStatePath,
 		Config:         configInfo,
 		State:          appState,
-		Client:         httpClient,
+		Client:         client.NewClient(httpClient),
 		AgentIndex:     agentIndex,
 		Session:        &opencode.Session{},
 		Messages:       []Message{},
@@ -773,7 +774,7 @@ func (a *App) MarkProjectInitialized(ctx context.Context) error {
 }
 
 func (a *App) CreateSession(ctx context.Context) (*opencode.Session, error) {
-	session, err := a.Client.Session.New(ctx, opencode.SessionNewParams{})
+	session, err := a.Client.Sessions.Create(ctx, client.CreateOpts{})
 	if err != nil {
 		return nil, err
 	}
@@ -904,19 +905,19 @@ func (a *App) Cancel(ctx context.Context, sessionID string) error {
 }
 
 func (a *App) ListSessions(ctx context.Context) ([]opencode.Session, error) {
-	response, err := a.Client.Session.List(ctx, opencode.SessionListParams{})
+	sessions, err := a.Client.Sessions.List(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if response == nil {
-		return []opencode.Session{}, nil
+	result := make([]opencode.Session, len(sessions))
+	for i, s := range sessions {
+		result[i] = *s
 	}
-	sessions := *response
-	return sessions, nil
+	return result, nil
 }
 
 func (a *App) DeleteSession(ctx context.Context, sessionID string) error {
-	_, err := a.Client.Session.Delete(ctx, sessionID, opencode.SessionDeleteParams{})
+	err := a.Client.Sessions.Delete(ctx, sessionID)
 	if err != nil {
 		slog.Error("Failed to delete session", "error", err)
 		return err
