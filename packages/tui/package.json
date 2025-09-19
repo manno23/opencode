@@ -1,0 +1,16 @@
+{
+  "name": "@sst/opencode-tui",
+  "private": true,
+  "version": "0.0.0",
+  "description": "OpenCode TUI application (Go-based UI; this package orchestrates spec generation and SDK codegen)",
+  "scripts": {
+    "build": "make build",
+    "generate": "make sdk",
+    "spec": "make spec",
+    "merge": "make merge",
+    "clean": "make clean"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+compatibility:
+  # prefer pointers for objects to reduce copies
+  ptr-for-objects: true
+features:
+  std-errors: true
+  client: true
+  server: false
+  models: true
+http:
+  client:
+    # Inject Authorization: Bearer <token>
+    request-editor: true
+package: api
+output:
+  layout: flat
+  # target directory is set by the generate command
+
