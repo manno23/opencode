@@ -7,7 +7,7 @@ SPEC_UNIFIED := $(SPEC_DIR)/unified-openapi.yaml
 
 spec:
 	# Generate base spec from server (Hono/Zod). Try bun route first, fallback to opencode CLI.
-	bun run --silent dev generate > $(SPEC_BASE) || opencode generate > $(SPEC_BASE)
+	bun run dev --silent generate > $(SPEC_BASE) || opencode generate > $(SPEC_BASE)
 
 merge:
 	# Merge base JSON with custom YAML delta. Requires yq v4.

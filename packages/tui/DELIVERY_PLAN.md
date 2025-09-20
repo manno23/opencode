@@ -154,3 +154,121 @@ Key Risks:
 - Escalate if burn-down >15% (e.g., defer streaming).
 - Review `SDK.md` with every code change for accuracy.
 - Full parity: 100% test coverage, no flags, legacy code removed.
+
+
+
+=============================================================================================
+# Thoughts on what to keep, and what can be discarded.
+
+Here’s a pragmatic map for your SDK refactor: what to lean on, what to migrate into the generated client, and what you can likely delete or simplify once ogen
+covers it.
+
+## Keep in the app (UI/UX-specific)
+
+These are TUI concerns and should remain outside the SDK:
+
+• Bubble Tea components and layout: editor/messages/modals/toasts, debounced key handling, leader sequences
+ • Files: packages/tui/internal/tui/tui.go, internal/components/*, internal/layout, internal/styles, internal/theme, internal/components/{chat,dialog,status,toast}
+• Command routing and keybind logic
+ • Files: internal/commands, usage in tui.go executeCommand branch
+• App state and UI state orchestration (which modal to show, where to place overlays, cursor math, ANSI conversion)
+ • Files: internal/app for UI state, internal/util for TUI helpers (place overlay, ANSI conversion)
+
+
+## Move into the SDK (generator-friendly, API-shaped)
+
+These should be centralized in the generated client or a thin hand-written layer next to it:
+
+• API request/response typing and union handling
+ • Replace all opencode.F optional wrappers with ogen-generated Opt* types and helpers
+ • Use SDK union discriminators directly; avoid local re-wrapping of unions
+• Endpoint coverage
+ • Port all calls listed in packages/sdk/next-go/SDK.md (Session*, Project*, File*, Find*, CommandList, ConfigProviders, Tool* and TUI API endpoints) into the ogen
+ client
+ • Ensure streaming (EventSubscribe) returns a Reader-like handle with clean close/cancel via context
+• Pagination, filtering, and params shaping
+ • Any repeated construction of params in internal/app or components can be collapsed into SDK request builders
+• Permissions API
+ • Provide a typed Permissions.Respond method (your SDK.md names it PostSessionIdPermissionsPermissionID) with clean enums
+• Error normalization
+ • Map API error payloads into typed errors (ProviderAuthError, UnknownError, etc.) so TUI can type-switch without inspecting raw payloads
+
+
+Concretely, the following code paths can become thin SDK calls (remove custom glue):
+
+• Session interactions in TUI and components:
+ • Session.Get, Children, Share/Unshare, Revert/Unrevert, Summarize, Init, Prompt, Command, Shell, Update, Delete, Abort, List, Messages, Message
+ • References:
+  • packages/tui/internal/tui/tui.go: calls around lines ~120–450, ~650–750, ~1215–1475
+  • packages/opencode/internal/app/app.go: all Session.* usage noted in SDK.md
+  • packages/opencode/internal/components/chat/messages.go: Message, Revert, Unrevert paths
+
+• App endpoints:
+ • App.Providers, App.Init, App.Log
+ • Move struct shapes and request composition into SDK
+• TUI “API” commands (local HTTP-ish control messages in tui.go):
+ • /tui/open-help, /tui/open-sessions, /tui/open-timeline, /tui/open-themes, /tui/append-prompt, /tui/submit-prompt, /tui/clear-prompt, /tui/execute-command,
+ /tui/show-toast
+ • For “append/submit/clear/execute/show-toast,” you already spec’d corresponding SDK endpoints (TuiAppendPrompt, TuiSubmitPrompt, TuiClearPrompt,
+ TuiExecuteCommand, TuiShowToast). Route these through the SDK and drop the custom JSON decoding in tui.go. The UI can just call the SDK methods.
+
+
+## Simplify or delete after moving to SDK
+
+• Optional field helpers
+ • Remove opencode.F in app/components once ogen Opt* builders exist
+• Manual JSON marshalling for API.Request in tui.go
+ • Replace the switch handling of msg.Path bodies with typed SDK calls; delete the body structs in tui.go and let the generator’s request types own it
+• Local “response union” switches where the SDK can return typed results
+ • E.g., ToolIdsRes, ToolListRes: if ogen emits tagged unions and helpers, switch on SDK type instead of local intermediates
+• Event stream plumbing that’s duplicative
+ • If your SDK exposes EventSubscribe returning a stream + helper to parse events into strongly typed opencode.EventListResponse* values, you can:
+  • Keep the high-level event handling in the app/TUI
+  • Drop any local SSE wire format handling, retry logic, or demux that the SDK can own
+
+
+
+## Minimal app-side that you still need
+
+• Mapping SDK model objects into UI Messages
+ • app.Message wraps SDK unions for rendering; keep the minimal wrapper, but remove any data massaging that the SDK can do (timestamps, IDs, share URL locations)
+• Lightweight adapters for UX-only flows
+ • The logic in tui.go for switching from child session to parent before sending commands is UX state; keep that outside the SDK, but keep the calls themselves
+ thin
+
+
+## Pitfalls to watch out for when swapping SDKs
+
+• Enum names and param names
+ • Example: SessionPermissionRespondParamsResponse* enums might be renamed or nested differently in the ogen output; centralize these in a small adapter layer to
+ avoid sprinkling renames across the TUI
+• Pointer vs value returns
+ • Your SDK.md shows mix of pointers and slices; update nil checks accordingly
+• Union types
+ • Ensure ogen generates usable Go unions (sum types) and expose ergonomic helpers (AsX, IsX). If it doesn’t, add tiny wrappers next to the SDK, not in the TUI
+• Streaming cancellation
+ • Confirm Context cancellation on EventSubscribe fully tears down the Reader; if not, provide an SDK-level Close
+
+
+## High-ROI targets
+
+• packages/opencode/internal/app/app.go
+ • Centralizes most API interactions; migrate all request construction to SDK; reduce to orchestrating calls and UI state
+• packages/tui/internal/components/chat/messages.go
+ • Message loading, revert/unrevert details, tool/text/file part handling; replace API shaping with SDK calls and use typed unions
+• packages/tui/internal/tui/tui.go
+ • Remove the API.Request body decoding and method branching for /tui/* paths; call the SDK directly
+• packages/opencode/internal/util/apilogger.go
+ • Replace with SDK App.Log
+
+
+After this shift:
+
+• The SDK owns all HTTP shape: params, unions, errors, streaming
+• The TUI only orchestrates UI and calls typed SDK methods
+• You shed custom option wrappers, manual JSON decoding for “/tui/*”, and any local type aliases that mirror API responses
+
+If you want, I can produce a concrete diff plan for app.go, messages.go, and tui.go to swap in the ogen client, listing exact call-site substitutions and
+enum/param renames.
+
+==============================================================================================
