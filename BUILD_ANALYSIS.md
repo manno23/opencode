@@ -6,12 +6,12 @@ This document provides an analysis of the build and maintenance infrastructure f
 
 The project is a large monorepo managed with `bun` as the package manager and `turbo` for task execution. It is composed of several packages, each with a specific role:
 
--   `packages/opencode`: The core of the project, a TypeScript application that forms the `opencode` command-line interface (CLI).
--   `packages/tui`: A Go-based project responsible for the terminal user interface (TUI).
--   `packages/app`: A web application, likely a dashboard or a companion to the CLI.
--   `packages/console`: A web-based console for the application.
--   `packages/sdk`: Contains software development kits (SDKs) for interacting with the `opencode` platform.
--   `sst.config.ts`: Indicates the use of the Serverless Stack (SST) for infrastructure deployment.
+- `packages/opencode`: The core of the project, a TypeScript application that forms the `opencode` command-line interface (CLI).
+- `packages/tui`: A Go-based project responsible for the terminal user interface (TUI).
+- `packages/app`: A web application, likely a dashboard or a companion to the CLI.
+- `packages/console`: A web-based console for the application.
+- `packages/sdk`: Contains software development kits (SDKs) for interacting with the `opencode` platform.
+- `sst.config.ts`: Indicates the use of the Serverless Stack (SST) for infrastructure deployment.
 
 ## 2. Build Process
 
@@ -26,10 +26,10 @@ The build process is a hybrid of Go and Bun, and can be broken down into the fol
 
 ## 3. Key Technologies
 
--   **Bun:** Serves as the package manager, runtime environment, and bundler. The `Bun.build` API is critical to the build process.
--   **Go:** Used to build the TUI component. The project requires Go version 1.24.0, as specified in `packages/tui/go.mod`.
--   **Turbo:** Used for running tasks across the monorepo, such as `typecheck`.
--   **SST:** Used for deploying the project's infrastructure.
+- **Bun:** Serves as the package manager, runtime environment, and bundler. The `Bun.build` API is critical to the build process.
+- **Go:** Used to build the TUI component. The project requires Go version 1.24.0, as specified in `packages/tui/go.mod`.
+- **Turbo:** Used for running tasks across the monorepo, such as `typecheck`.
+- **SST:** Used for deploying the project's infrastructure.
 
 ## 4. Potential Problem Points
 
