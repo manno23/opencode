@@ -3,26 +3,21 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/go-faster/errors"
-	"github.com/ogen-go/ogen/http/network"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 // loadSpec loads the OpenAPI spec from the JSON file.
 func loadSpec(t *testing.T) *openapi3.T {
-	spec, err := openapi3.NewLoader().LoadFromFile("../../openapi.json")
+	spec, err := openapi3.NewLoader().LoadFromFile("../unified-openapi.json")
 	require.NoError(t, err)
 	return spec
 }
@@ -33,10 +28,28 @@ func TestClientAllOperations(t *testing.T) {
 
 	// Create a mock HTTP server.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Default to 200 OK with empty JSON for unhandled paths.
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("{}"))
+		var response string
+		switch r.URL.Path {
+		case "/app":
+			response = `{"hostname": "test", "git": false, "path": {"config": "", "data": "", "root": "", "cwd": "", "state": ""}, "time": {}}`
+		case "/app/init":
+			response = `true`
+		case "/session":
+			if r.Method == "GET" {
+				response = `[]`
+			} else {
+				response = `{"id": "ses_test", "title": "Test Session", "version": "1", "time": {"created": 1234567890, "updated": 1234567890}}`
+			}
+		default:
+			if strings.Contains(r.URL.Path, "/session/") && strings.Contains(r.URL.Path, "/message") && r.Method == "POST" {
+				response = `{"info": {"id": "msg", "sessionID": "test", "role": "assistant", "time": {"created": 123}, "system": [], "modelID": "model", "providerID": "prov", "mode": "chat", "path": {"cwd": "", "root": ""}, "cost": 0, "tokens": {"input": 0, "output": 0, "reasoning": 0, "cache": {"read": 0, "write": 0}}}, "parts": []}`
+			} else {
+				response = `{}`
+			}
+		}
+		_, _ = w.Write([]byte(response))
 	}))
 	defer ts.Close()
 
@@ -47,7 +60,7 @@ func TestClientAllOperations(t *testing.T) {
 	ctx := context.Background()
 
 	// Enumerate all operations from spec and test each.
-	for path, pathItem := range spec.Paths {
+	for path, pathItem := range spec.Paths.Map() {
 		for method, op := range pathItem.Operations() {
 			operationID := op.OperationID
 			t.Run(fmt.Sprintf("%s %s (%s)", method, path, operationID), func(t *testing.T) {
@@ -72,9 +85,10 @@ func testOperation(t *testing.T, client *Client, ctx context.Context, opID strin
 
 	case "session.create":
 		req := OptSessionCreateReq{
-			Value: &SessionCreateReq{
-				Title: "Test Session",
+			Value: SessionCreateReq{
+				Title: OptString{Value: "Test Session", Set: true},
 			},
+			Set: true,
 		}
 		resp, err := client.SessionCreate(ctx, req)
 		assert.NoError(t, err)
@@ -93,11 +107,17 @@ func testOperation(t *testing.T, client *Client, ctx context.Context, opID strin
 	// Add cases for all operations...
 	case "session.chat":
 		req := OptSessionChatReq{
-			Value: &SessionChatReq{
+			Value: SessionChatReq{
 				ProviderID: "test-provider",
 				ModelID:    "test-model",
-				Parts:      []PartInput{{Type: "text", Text: "Hello"}},
+				Parts: []SessionChatReqPartsItem{
+					NewTextPartInputSessionChatReqPartsItem(TextPartInput{
+						Type: "text",
+						Text: "Hello",
+					}),
+				},
 			},
+			Set: true,
 		}
 		params := SessionChatParams{ID: "test-session"}
 		resp, err := client.SessionChat(ctx, req, params)
@@ -120,7 +140,8 @@ func TestClientValidation(t *testing.T) {
 
 	// Example: Invalid session.create with missing required fields.
 	req := OptSessionCreateReq{
-		Value: &SessionCreateReq{}, // Missing title
+		Value: SessionCreateReq{}, // Missing title
+		Set:   true,
 	}
 	_, err = client.SessionCreate(ctx, req)
 	assert.Error(t, err) // Expect validation error from Ogen
