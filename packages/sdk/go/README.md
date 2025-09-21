@@ -35,7 +35,7 @@ This library requires Go 1.18+.
 
 ## Usage
 
-The full API of this library can be found in [api.md](api.md).
+The full API of this library can be found in api.md.
 
 ```go
 package main

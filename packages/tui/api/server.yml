@@ -1,0 +1,22 @@
+parser:
+  infer_types: true
+  allow_remote: true
+  depth_limit: 1000
+
+generator:
+  features:
+    disable_all: true # start clean
+    enable:
+      - "paths/server" # server code only
+    disable:
+      - "paths/client"
+      - "webhooks/client"
+      - "webhooks/server"
+      - "ogen/unimplemented"
+      - "debug/example_tests"
+
+  filters: # keep every path/method (default)
+    path_regex: ".*"
+    methods: [GET, POST, PUT, PATCH, DELETE]
+
+  ignore_not_implemented: ["sum types with same names"]

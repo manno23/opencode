@@ -5,20 +5,23 @@ package api
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/sst/opencode/api/server"
 )
 
-// loadSpec loads the OpenAPI spec from the JSON file.
+// loadSpec loads the OpenAPI spec from the JSON file and validates it.
 func loadSpec(t *testing.T) *openapi3.T {
-	spec, err := openapi3.NewLoader().LoadFromFile("../unified-openapi.json")
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+	spec, err := loader.LoadFromFile("../unified-openapi.json")
 	require.NoError(t, err)
+	require.NoError(t, spec.Validate(loader.Context))
 	return spec
 }
 
@@ -26,31 +29,10 @@ func loadSpec(t *testing.T) *openapi3.T {
 func TestClientAllOperations(t *testing.T) {
 	spec := loadSpec(t)
 
-	// Create a mock HTTP server.
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		var response string
-		switch r.URL.Path {
-		case "/app":
-			response = `{"hostname": "test", "git": false, "path": {"config": "", "data": "", "root": "", "cwd": "", "state": ""}, "time": {}}`
-		case "/app/init":
-			response = `true`
-		case "/session":
-			if r.Method == "GET" {
-				response = `[]`
-			} else {
-				response = `{"id": "ses_test", "title": "Test Session", "version": "1", "time": {"created": 1234567890, "updated": 1234567890}}`
-			}
-		default:
-			if strings.Contains(r.URL.Path, "/session/") && strings.Contains(r.URL.Path, "/message") && r.Method == "POST" {
-				response = `{"info": {"id": "msg", "sessionID": "test", "role": "assistant", "time": {"created": 123}, "system": [], "modelID": "model", "providerID": "prov", "mode": "chat", "path": {"cwd": "", "root": ""}, "cost": 0, "tokens": {"input": 0, "output": 0, "reasoning": 0, "cache": {"read": 0, "write": 0}}}, "parts": []}`
-			} else {
-				response = `{}`
-			}
-		}
-		_, _ = w.Write([]byte(response))
-	}))
+	// Create a mock HTTP server using generated Ogen server.
+	srv, err := server.NewServer(&server.MockServerImpl{})
+	require.NoError(t, err)
+	ts := httptest.NewServer(srv)
 	defer ts.Close()
 
 	// Create client with test server URL.

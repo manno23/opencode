@@ -632,7 +632,7 @@ export namespace Config {
     const parsed = Info.safeParse(data)
     if (parsed.success) {
       if (!parsed.data.$schema) {
-        parsed.data.$schema = "https://opencode.ai/config.json"
+        parsed.data.$schema = "https://opencode.ai/config.json" // BOSS
         await Bun.write(configFilepath, JSON.stringify(parsed.data, null, 2))
       }
       const data = parsed.data
