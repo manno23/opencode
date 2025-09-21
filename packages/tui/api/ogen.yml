@@ -5,18 +5,18 @@ parser:
 
 generator:
   features:
-    disable_all: true          # start clean
+    disable_all: true # start clean
     enable:
-      - 'paths/client'           # client code only
-      - 'client/request/validation'
+      - "paths/client" # client code only
+      - "client/request/validation"
     disable:
-      - 'paths/server'
-      - 'webhooks/client'
-      - 'webhooks/server'
-      - 'ogen/unimplemented'
-      - 'debug/example_tests'
+      - "paths/server"
+      - "webhooks/client"
+      - "webhooks/server"
+      - "ogen/unimplemented"
+      - "debug/example_tests"
 
-  filters:                     # keep every path/method (default)
+  filters: # keep every path/method (default)
     path_regex: ".*"
     methods: [GET, POST, PUT, PATCH, DELETE]
 

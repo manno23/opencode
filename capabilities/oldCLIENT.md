@@ -324,20 +324,17 @@ go test ./compat/...
 **For new developers:**
 
 1. **Environment setup:**
-
    - [ ] Install Go 1.24+
    - [ ] Install Node.js/Bun
    - [ ] Clone repository
    - [ ] Run `go work sync`
 
 2. **First generation:**
-
    - [ ] Run `./scripts/generate-go-sdk.sh`
    - [ ] Verify build with `go build ./...`
    - [ ] Run tests with `go test ./...`
 
 3. **Understanding the architecture:**
-
    - [ ] Review `sdk/go/types.gen.go` (generated types)
    - [ ] Review `sdk/go/client.go` (manual client)
    - [ ] Review `sdk/go/compat/` (TUI integration)

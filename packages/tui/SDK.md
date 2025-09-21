@@ -45,8 +45,7 @@ Notes:
 
 - Go TUI build (similar to packages/opencode/README.md release path), example local build:
 
-
-```
+````
 Optional: Convert to editable YAML for extensions (e.g., x-ogen-* for unions/validators; use jq for JSON->YAML):
 
 ```bash
@@ -57,7 +56,7 @@ jq -S . packages/tui/api/openapi.json > packages/tui/api/openapi.yaml  # Pretty-
 ```bash
 cd packages/tui
 CGO_ENABLED=0 go build -ldflags="-s -w -X main.Version=$(git describe --tags --always)" -o tui cmd/main.go
-```
+````
 
 - During release, the opencode bundling step can still embed the TUI binary as before (see packages/opencode/README.md for reference build commands).
 
@@ -167,7 +166,8 @@ High-ROI refactors:
 
 ## Development flow
 
-- Generate the current spec: 
+- Generate the current spec:
+
 ```bash
 bun run dev generate > packages/tui/api/openapi.json
   OR IF THERE IS PROBLEMS WITH THE BUILD OF `bun run dev`
@@ -175,6 +175,7 @@ opencode generate > packages/tui/api/openapi.json
 ```
 
 - Regenerate client:
+
 ```bash
 cd packages/tui/api
 go generate ./...

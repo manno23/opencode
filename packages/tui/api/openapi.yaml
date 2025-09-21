@@ -6,7 +6,7 @@ paths: {} # no extra routes yet; delta only adds/updates schemas
 
 components:
   schemas:
-    # Fix timeout schema exclusiveMinimum issue 
+    # Fix timeout schema exclusiveMinimum issue
     ProviderConfigRequest:
       type: object
       properties:

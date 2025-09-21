@@ -19,7 +19,13 @@ const result = z.toJSONSchema(Config.Info, {
     const schema = ctx.jsonSchema
 
     // Preserve strictness: set additionalProperties: false for objects
-    if (schema && typeof schema === "object" && schema.type === "object" && !Array.isArray(schema.type) && schema.additionalProperties === undefined) {
+    if (
+      schema &&
+      typeof schema === "object" &&
+      schema.type === "object" &&
+      !Array.isArray(schema.type) &&
+      schema.additionalProperties === undefined
+    ) {
       schema.additionalProperties = false
     }
 
