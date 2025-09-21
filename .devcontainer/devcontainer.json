@@ -1,20 +1,20 @@
 {
-	"name": "Node.js",
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:0-18",
+  "name": "Node.js",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:0-18",
 
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"GoogleCloudTools.gemini-code-assist" // <-- Add this line
-			]
-		}
-	},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "GoogleCloudTools.gemini-code-assist" // <-- Add this line
+      ]
+    }
+  },
 
-	// Forward the port your app runs on
-	"forwardPorts": [3000],
+  // Forward the port your app runs on
+  "forwardPorts": [3000],
 
-	// Run 'npm install' after the container is created
-	"postCreateCommand": "npm install"
+  // Run 'npm install' after the container is created
+  "postCreateCommand": "npm install"
 }
