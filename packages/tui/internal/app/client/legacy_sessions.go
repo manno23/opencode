@@ -12,7 +12,7 @@ type LegacySessions struct {
 }
 
 // NewLegacySessions creates a new LegacySessions
-func NewLegacySessions(client *opencode.Client) *LegacySessions {
+func NewLegacySessions(client *opencode.Client) SessionsClient {
 	return &LegacySessions{client: client}
 }
 
@@ -25,7 +25,11 @@ func (l *LegacySessions) Create(ctx context.Context, opts CreateOpts) (*Session,
 	if opts.Title != "" {
 		params.Title = opencode.F(opts.Title)
 	}
-	return l.client.Session.New(ctx, params)
+	result, err := l.client.Session.New(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // List lists all sessions
@@ -39,7 +43,8 @@ func (l *LegacySessions) List(ctx context.Context) ([]*Session, error) {
 	}
 	sessions := make([]*Session, len(*res))
 	for i, s := range *res {
-		sessions[i] = &s
+		session := s // Copy to avoid pointer issues
+		sessions[i] = &session
 	}
 	return sessions, nil
 }

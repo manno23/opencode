@@ -15,6 +15,7 @@ import (
 	"github.com/sst/opencode-sdk-go/option"
 	"github.com/sst/opencode/internal/api"
 	"github.com/sst/opencode/internal/app"
+	"github.com/sst/opencode/internal/app/client"
 	"github.com/sst/opencode/internal/clipboard"
 	"github.com/sst/opencode/internal/tui"
 	"github.com/sst/opencode/internal/util"
@@ -36,6 +37,9 @@ func main() {
 	flag.Parse()
 
 	url := os.Getenv("OPENCODE_SERVER")
+	if url == "" {
+		url = "http://localhost:8080" // Default server URL
+	}
 
 	stat, err := os.Stdin.Stat()
 	if err != nil {
@@ -65,6 +69,9 @@ func main() {
 		option.WithBaseURL(url),
 	)
 
+	// Create unified client with adapter layer
+	apiClient := client.NewClient(httpClient)
+
 	var agents []opencode.Agent
 	var path *opencode.Path
 	var project *opencode.Project
@@ -74,7 +81,8 @@ func main() {
 	batch.Go(func() error {
 		result, err := httpClient.Project.Current(context.Background(), opencode.ProjectCurrentParams{})
 		if err != nil {
-			return err
+			slog.Warn("Failed to get current project", "error", err)
+			return nil // Don't fail startup
 		}
 		project = result
 		return nil
@@ -83,7 +91,8 @@ func main() {
 	batch.Go(func() error {
 		result, err := httpClient.Agent.List(context.Background(), opencode.AgentListParams{})
 		if err != nil {
-			return err
+			slog.Warn("Failed to list agents", "error", err)
+			return nil // Don't fail startup
 		}
 		agents = *result
 		return nil
@@ -92,7 +101,8 @@ func main() {
 	batch.Go(func() error {
 		result, err := httpClient.Path.Get(context.Background(), opencode.PathGetParams{})
 		if err != nil {
-			return err
+			slog.Warn("Failed to get path", "error", err)
+			return nil // Don't fail startup
 		}
 		path = result
 		return nil
@@ -119,7 +129,7 @@ func main() {
 	}()
 
 	// Create main context for the application
-	app_, err := app.New(ctx, version, project, path, agents, httpClient, model, prompt, agent, sessionID)
+	app_, err := app.New(ctx, version, project, path, agents, apiClient, httpClient, model, prompt, agent, sessionID)
 	if err != nil {
 		panic(err)
 	}

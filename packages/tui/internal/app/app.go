@@ -106,14 +106,29 @@ func New(
 	project *opencode.Project,
 	path *opencode.Path,
 	agents []opencode.Agent,
+	apiClient *client.Client,
 	httpClient *opencode.Client,
 	initialModel *string,
 	initialPrompt *string,
 	initialAgent *string,
 	initialSession *string,
 ) (*App, error) {
+	cwd, _ := os.Getwd()
+	util.CwdPath = cwd
+	// Fallbacks when server doesn't provide project/path
+	if project == nil {
+		project = &opencode.Project{Worktree: cwd}
+	}
 	util.RootPath = project.Worktree
-	util.CwdPath, _ = os.Getwd()
+	if path == nil {
+		// Prefer OS config dir, fallback to cwd
+		stateBase := cwd
+		if conf, err := os.UserConfigDir(); err == nil && conf != "" {
+			stateBase = filepath.Join(conf, "opencode")
+		}
+		_ = os.MkdirAll(stateBase, 0o755)
+		path = &opencode.Path{State: stateBase, Directory: cwd, Worktree: project.Worktree}
+	}
 
 	configInfo, err := httpClient.Config.Get(ctx, opencode.ConfigGetParams{})
 	if err != nil {
@@ -202,7 +217,7 @@ func New(
 		StatePath:      appStatePath,
 		Config:         configInfo,
 		State:          appState,
-		Client:         client.NewClient(httpClient),
+		Client:         apiClient,
 		AgentIndex:     agentIndex,
 		Session:        &opencode.Session{},
 		Messages:       []Message{},

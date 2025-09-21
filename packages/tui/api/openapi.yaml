@@ -1,0 +1,111 @@
+openapi: 3.1.0
+info:
+  title: Opencode TUI delta
+  version: 0.0.0
+paths: {} # no extra routes yet; delta only adds/updates schemas
+
+components:
+  schemas:
+    # Fix timeout schema exclusiveMinimum issue 
+    ProviderConfigRequest:
+      type: object
+      properties:
+        timeout:
+          description: "Timeout in milliseconds for requests to this provider. Default is 300000 (5 minutes). Set to false to disable timeout."
+          anyOf:
+            - description: "Timeout in milliseconds for requests to this provider. Default is 300000 (5 minutes). Set to false to disable timeout."
+              type: integer
+              minimum: 0
+              exclusiveMinimum: true
+              maximum: 9007199254740991
+            - description: "Disable timeout for this provider entirely."
+              type: boolean
+              const: false
+
+    Provider:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        models:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Model"
+      x-oapi-codegen-extra-tags:
+        valid: "structonly"
+
+    Model:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        provider:
+          $ref: "#/components/schemas/Provider"
+
+    Agent:
+      type: object
+      properties:
+        name:
+          type: string
+        mode:
+          type: string
+          enum: [primary, secondary]
+        description:
+          type: string
+          nullable: true
+
+    Event:
+      oneOf:
+        - $ref: "#/components/schemas/EventInstallationUpdated"
+        - $ref: "#/components/schemas/EventSessionUpdated"
+        - $ref: "#/components/schemas/EventMessagePartUpdated"
+      discriminator:
+        propertyName: type
+        mapping:
+          installation.updated: "#/components/schemas/EventInstallationUpdated"
+          session.updated: "#/components/schemas/EventSessionUpdated"
+          message.part.updated: "#/components/schemas/EventMessagePartUpdated"
+      x-ogen-name: Event
+
+    EventInstallationUpdated:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [installation.updated]
+        properties:
+          version:
+            type: string
+      required: [type, properties]
+      x-oapi-codegen-extra-tags:
+        json: "-,omitempty"
+
+    EventSessionUpdated:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [session.updated]
+        info:
+          $ref: "#/components/schemas/Session" # ensure Session is defined in base spec
+
+    EventMessagePartUpdated:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [message.part.updated]
+        properties:
+          part:
+            $ref: "#/components/schemas/Part" # ensure Part is defined in base spec

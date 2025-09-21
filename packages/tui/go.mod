@@ -11,11 +11,15 @@ require (
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta.3
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/fsnotify/fsnotify v1.8.0
+	github.com/go-faster/errors v0.7.1
+	github.com/go-faster/jx v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/lithammer/fuzzysearch v1.1.8
+	github.com/manno23/opencode-sdk-go v0.0.2
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.16.0
+	github.com/ogen-go/ogen v1.14.0
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3
 	github.com/sst/opencode-sdk-go v0.1.0-alpha.8
 	golang.org/x/image v0.28.0
@@ -25,6 +29,7 @@ require (
 replace (
 	github.com/charmbracelet/x/input => ./input
 	github.com/sst/opencode-sdk-go => ../sdk/go
+
 )
 
 require golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
@@ -37,19 +42,24 @@ require (
 	github.com/charmbracelet/x/input v0.3.7 // indirect
 	github.com/charmbracelet/x/windows v0.2.1 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/getkin/kin-openapi v0.127.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/goccy/go-yaml v1.17.1 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sanity-io/litter v1.5.8 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/speakeasy-api/openapi-overlay v0.9.0 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
@@ -58,6 +68,8 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -86,7 +98,7 @@ require (
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.5 // indirect
 	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sync v0.15.0
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/text v0.26.0

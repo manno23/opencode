@@ -10,8 +10,11 @@ spec:
 	bun run dev --silent generate > $(SPEC_BASE) || opencode generate > $(SPEC_BASE)
 
 merge:
-	# Merge base JSON with custom YAML delta. Requires yq v4.
-	yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' $(SPEC_BASE) $(SPEC_YAML) > $(SPEC_UNIFIED)
+	@if [ ! -f "$(SPEC_BASE)" ]; then echo "Missing $(SPEC_BASE). Run 'make spec' first."; exit 1; fi
+	@if [ ! -f "$(SPEC_YAML)" ]; then echo "Missing $(SPEC_YAML). Create your delta YAML."; exit 1; fi
+	# Deep-merge base (JSON) with delta (YAML) using yq v4; delta overrides base
+	yq4 -p json -p yaml -o json eval-all 'select(fileIndex==0) *+ select(fileIndex==1)' "api/base-openapi.json" "api/openapi.yaml" > "api/unified-openapi.json"
+	@echo "Wrote $(SPEC_UNIFIED)"
 
 sdk:
 	cd $(SPEC_DIR) && go generate ./...

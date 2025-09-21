@@ -1,17 +1,23 @@
-compatibility:
-  # prefer pointers for objects to reduce copies
-  ptr-for-objects: true
-features:
-  std-errors: true
-  client: true
-  server: false
-  models: true
-http:
-  client:
-    # Inject Authorization: Bearer <token>
-    request-editor: true
-package: api
-output:
-  layout: flat
-  # target directory is set by the generate command
+parser:
+  infer_types: true
+  allow_remote: true
+  depth_limit: 1000
 
+generator:
+  features:
+    disable_all: true          # start clean
+    enable:
+      - 'paths/client'           # client code only
+      - 'client/request/validation'
+    disable:
+      - 'paths/server'
+      - 'webhooks/client'
+      - 'webhooks/server'
+      - 'ogen/unimplemented'
+      - 'debug/example_tests'
+
+  filters:                     # keep every path/method (default)
+    path_regex: ".*"
+    methods: [GET, POST, PUT, PATCH, DELETE]
+
+  ignore_not_implemented: ["sum types with same names"]
