@@ -1,0 +1,54 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.Event
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/Event_installation_updated"
+        - $ref: "#/components/schemas/Event_lsp_client_diagnostics"
+        - $ref: "#/components/schemas/Event_message_updated"
+        - $ref: "#/components/schemas/Event_message_removed"
+        - $ref: "#/components/schemas/Event_message_part_updated"
+        - $ref: "#/components/schemas/Event_message_part_removed"
+        - $ref: "#/components/schemas/Event_session_compacted"
+        - $ref: "#/components/schemas/Event_permission_updated"
+        - $ref: "#/components/schemas/Event_permission_replied"
+        - $ref: "#/components/schemas/Event_file_edited"
+        - $ref: "#/components/schemas/Event_session_idle"
+        - $ref: "#/components/schemas/Event_session_updated"
+        - $ref: "#/components/schemas/Event_session_deleted"
+        - $ref: "#/components/schemas/Event_session_error"
+        - $ref: "#/components/schemas/Event_file_watcher_updated"
+        - $ref: "#/components/schemas/Event_server_connected"
+        - $ref: "#/components/schemas/Event_ide_installed"
+      x-ogen-sum-type:
+        discriminator: event
+        mapping:
+          "Event.installation.updated":    "#/components/schemas/Event_installation_updated"
+          "Event.lsp.client.diagnostics":  "#/components/schemas/Event_lsp_client_diagnostics"
+          "Event.message.updated":         "#/components/schemas/Event_message_updated"
+          "Event.message.removed":         "#/components/schemas/Event_message_removed"
+          "Event.message.part.updated":    "#/components/schemas/Event_message_part_updated"
+          "Event.message.part.removed":    "#/components/schemas/Event_message_part_removed"
+          "Event.session.compacted":       "#/components/schemas/Event_session_compacted"
+          "Event.permission.updated":      "#/components/schemas/Event_permission_updated"
+          "Event.permission.replied":      "#/components/schemas/Event_permission_replied"
+          "Event.file.edited":             "#/components/schemas/Event_file_edited"
+          "Event.session.idle":            "#/components/schemas/Event_session_idle"
+          "Event.session.updated":         "#/components/schemas/Event_session_updated"
+          "Event.session.deleted":         "#/components/schemas/Event_session_deleted"
+          "Event.session.error":           "#/components/schemas/Event_session_error"
+          "Event.file.watcher.updated":    "#/components/schemas/Event_file_watcher_updated"
+          "Event.server.connected":        "#/components/schemas/Event_server_connected"
+          "Event.ide.installed":           "#/components/schemas/Event_ide_installed"
+
+  # One example branch; repeat for each event value (you can script-generate these).
+  - target: $.components.schemas.Event_message_updated
+    update:
+      x-ogen-name: EventMessageUpdated
+      type: object
+      required: [event, payload]
+      properties:
+        event:   { type: string, enum: ["Event.message.updated"] }  # keep dotted wire value
+        payload: { type: object, additionalProperties: true }
+

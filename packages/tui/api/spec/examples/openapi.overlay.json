@@ -1,0 +1,130 @@
+{
+  "openapi": "3.1.1",
+  "components": {
+    "schemas": {
+      "Session": {
+        "x-ogen-discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "revert": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "revert"
+                },
+                "messageID": {
+                  "type": "string"
+                }
+              },
+              "required": ["type", "messageID"]
+            },
+            "share": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "share"
+                },
+                "link": {
+                  "type": "string"
+                }
+              },
+              "required": ["type", "link"]
+            }
+          }
+        }
+      },
+      "Event": {
+        "x-ogen-oneof-discriminator": {
+          "propertyName": "eventType",
+          "mapping": {
+            "session": "#/components/schemas/SessionEvent",
+            "message": "#/components/schemas/MessageEvent",
+            "tool": "#/components/schemas/ToolEvent"
+          }
+        }
+      },
+      "ErrorDataItem": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Field that caused the error"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message for this field"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          }
+        },
+        "required": ["message"]
+      }
+    }
+  },
+  "paths": {
+    "/find": {
+      "get": {
+        "tags": ["files"],
+        "parameters": [
+          {
+            "name": "directory",
+            "description": "The directory to search in",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pattern",
+            "description": "The pattern to search for",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matches"
+          },
+          "default": {
+            "description": "Default error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" },
+                    "code": { "type": "integer" },
+                    "details": { "type": "object", "additionalProperties": true }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/session": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Successfully created session"
+          }
+        }
+      }
+    }
+  },
+  "x-ogen": {
+    "features": {
+      "std-errors": true,
+      "client": true
+    },
+    "ptr-for-objects": true
+  }
+}

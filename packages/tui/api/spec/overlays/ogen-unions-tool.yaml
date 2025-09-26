@@ -1,0 +1,48 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.ToolState
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/ToolStatePending"
+        - $ref: "#/components/schemas/ToolStateRunning"
+        - $ref: "#/components/schemas/ToolStateCompleted"
+        - $ref: "#/components/schemas/ToolStateError"
+      x-ogen-sum-type:
+        discriminator: kind
+        mapping:
+          pending:   "#/components/schemas/ToolStatePending"
+          running:   "#/components/schemas/ToolStateRunning"
+          completed: "#/components/schemas/ToolStateCompleted"
+          error:     "#/components/schemas/ToolStateError"
+
+  - target: $.components.schemas.ToolStatePending
+    update:
+      x-ogen-name: ToolStatePending
+      type: object
+      required: [kind]
+      properties: { kind: { type: string, enum: [pending] } }
+
+  - target: $.components.schemas.ToolStateRunning
+    update:
+      x-ogen-name: ToolStateRunning
+      type: object
+      required: [kind]
+      properties: { kind: { type: string, enum: [running] } }
+
+  - target: $.components.schemas.ToolStateCompleted
+    update:
+      x-ogen-name: ToolStateCompleted
+      type: object
+      required: [kind]
+      properties: { kind: { type: string, enum: [completed] } }
+
+  - target: $.components.schemas.ToolStateError
+    update:
+      x-ogen-name: ToolStateError
+      type: object
+      required: [kind, message]
+      properties:
+        kind:    { type: string, enum: [error] }
+        message: { type: string }
+

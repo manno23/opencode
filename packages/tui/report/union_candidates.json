@@ -1,0 +1,73 @@
+{
+  "schema": "Message",
+  "kind": "anyOf",
+  "branches": [
+    "UserMessage",
+    "AssistantMessage"
+  ]
+}
+{
+  "schema": "FilePartSource",
+  "kind": "anyOf",
+  "branches": [
+    "FileSource",
+    "SymbolSource"
+  ]
+}
+{
+  "schema": "ToolState",
+  "kind": "anyOf",
+  "branches": [
+    "ToolStatePending",
+    "ToolStateRunning",
+    "ToolStateCompleted",
+    "ToolStateError"
+  ]
+}
+{
+  "schema": "Part",
+  "kind": "anyOf",
+  "branches": [
+    "TextPart",
+    "ReasoningPart",
+    "FilePart",
+    "ToolPart",
+    "StepStartPart",
+    "StepFinishPart",
+    "SnapshotPart",
+    "PatchPart",
+    "AgentPart"
+  ]
+}
+{
+  "schema": "Auth",
+  "kind": "anyOf",
+  "branches": [
+    "OAuth",
+    "ApiAuth",
+    "WellKnownAuth"
+  ]
+}
+{
+  "schema": "Event",
+  "kind": "anyOf",
+  "branches": [
+    "Event.installation.updated",
+    "Event.lsp.client.diagnostics",
+    "Event.message.updated",
+    "Event.message.removed",
+    "Event.message.part.updated",
+    "Event.message.part.removed",
+    "Event.session.compacted",
+    "Event.permission.updated",
+    "Event.permission.replied",
+    "Event.file.edited",
+    "Event.session.idle",
+    "Event.session.updated",
+    "Event.session.deleted",
+    "Event.session.error",
+    "Event.file.watcher.updated",
+    "Event.server.connected",
+    "Event.ide.installed"
+  ]
+}

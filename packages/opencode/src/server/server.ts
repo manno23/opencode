@@ -50,6 +50,25 @@ const ERRORS = {
   },
 } as const
 
+const DEFAULT_RESPONSE = {
+  default: {
+    description: "Default error response",
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            error: { type: "string" },
+            code: { type: "integer" },
+            details: { type: "object", additionalProperties: true },
+          },
+          required: ["error"],
+        },
+      },
+    },
+  },
+} as any
+
 export namespace Server {
   const log = Log.create({ service: "server" })
 
@@ -129,6 +148,7 @@ export namespace Server {
                 },
               },
             },
+            ...DEFAULT_RESPONSE,
           },
         }),
         async (c) => {
@@ -881,12 +901,42 @@ export namespace Server {
         describeRoute({
           description: "Find text in files",
           operationId: "find.text",
+          parameters: [
+            {
+              name: "directory",
+              description: "The directory to search in",
+              in: "query",
+              schema: { type: "string" },
+            },
+            {
+              name: "pattern",
+              description: "The pattern to search for",
+              in: "query",
+              schema: { type: "string" },
+            },
+          ],
           responses: {
             200: {
               description: "Matches",
               content: {
                 "application/json": {
                   schema: resolver(Ripgrep.Match.shape.data.array()),
+                },
+              },
+            },
+            default: {
+              description: "Default error response",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      error: { type: "string" },
+                      code: { type: "integer" },
+                      details: { type: "object", additionalProperties: true },
+                    },
+                    required: ["error"],
+                  },
                 },
               },
             },

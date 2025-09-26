@@ -1,0 +1,33 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.Message
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/UserMessage"
+        - $ref: "#/components/schemas/AssistantMessage"
+      x-ogen-sum-type:
+        discriminator: kind
+        mapping:
+          user:      "#/components/schemas/UserMessage"
+          assistant: "#/components/schemas/AssistantMessage"
+
+  - target: $.components.schemas.UserMessage
+    update:
+      x-ogen-name: UserMessage
+      type: object
+      required: [kind, content]
+      properties:
+        kind: { type: string, enum: [user] }
+        content: { type: string }
+
+  - target: $.components.schemas.AssistantMessage
+    update:
+      x-ogen-name: AssistantMessage
+      type: object
+      required: [kind, content]
+      properties:
+        kind: { type: string, enum: [assistant] }
+        content: { type: string }
+
+

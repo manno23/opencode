@@ -1,7 +1,6 @@
 //go:build generate
 // +build generate
 
-package api
+package opencode
 
-//go:generate sh -c "ogen -clean -config ./ogen.yml -target ./ogen -package api unified-openapi.json"
-
+//go:generate sh -c "ogen -clean -config ./ogen.yml -target ./ogen -package ogenapi openapi.yaml"

@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"time"
+
+	"github.com/stretchr/testify/mock"
 )
 
 type MockServerImpl struct{}
@@ -148,9 +150,13 @@ func (m *MockServerImpl) SessionCommand(ctx context.Context, req OptSessionComma
 }
 
 func (m *MockServerImpl) SessionCreate(ctx context.Context, req OptSessionCreateReq) (SessionCreateRes, error) {
+	title := "Test Session"
+	if req.Set && req.Value.Title.Set {
+		title = req.Value.Title.Value
+	}
 	return &Session{
-		ID:      "new-session",
-		Title:   "New Session",
+		ID:      "ses-mock-" + strings.ReplaceAll(strings.ToLower(title), " ", "-"),
+		Title:   title,
 		Version: "1.0",
 		Time: SessionTime{
 			Created: float64(time.Now().Unix()),
@@ -355,4 +361,220 @@ func (m *MockServerImpl) TuiShowToast(ctx context.Context, req OptTuiShowToastRe
 
 func (m *MockServerImpl) TuiSubmitPrompt(ctx context.Context) (bool, error) {
 	return true, nil
+}
+
+// MockHandler is a testify mock for the Handler interface
+type MockHandler struct {
+	mock.Mock
+}
+
+func (m *MockHandler) AppGet(ctx context.Context) (*App, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(*App), args.Error(1)
+}
+
+func (m *MockHandler) AppInit(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) AppLog(ctx context.Context, req OptAppLogReq) (bool, error) {
+	args := m.Called(ctx, req)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) AuthSet(ctx context.Context, req OptAuth, params AuthSetParams) (AuthSetRes, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(AuthSetRes), args.Error(1)
+}
+
+func (m *MockHandler) CommandList(ctx context.Context) ([]Command, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]Command), args.Error(1)
+}
+
+func (m *MockHandler) ConfigProviders(ctx context.Context) (*ConfigProvidersOK, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(*ConfigProvidersOK), args.Error(1)
+}
+
+func (m *MockHandler) EventSubscribe(ctx context.Context) (EventSubscribeOK, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(EventSubscribeOK), args.Error(1)
+}
+
+func (m *MockHandler) FileRead(ctx context.Context, params FileReadParams) (*FileReadOK, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*FileReadOK), args.Error(1)
+}
+
+func (m *MockHandler) FileStatus(ctx context.Context) ([]File, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]File), args.Error(1)
+}
+
+func (m *MockHandler) FindFiles(ctx context.Context, params FindFilesParams) ([]string, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).([]string), args.Error(1)
+}
+
+func (m *MockHandler) FindSymbols(ctx context.Context, params FindSymbolsParams) ([]Symbol, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).([]Symbol), args.Error(1)
+}
+
+func (m *MockHandler) FindText(ctx context.Context, params FindTextParams) ([]FindTextOKItem, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).([]FindTextOKItem), args.Error(1)
+}
+
+func (m *MockHandler) PostSessionByIdPermissionsByPermissionID(ctx context.Context, req OptPostSessionByIdPermissionsByPermissionIDReq, params PostSessionByIdPermissionsByPermissionIDParams) (bool, error) {
+	args := m.Called(ctx, req, params)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) SessionAbort(ctx context.Context, params SessionAbortParams) (bool, error) {
+	args := m.Called(ctx, params)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) SessionChat(ctx context.Context, req OptSessionChatReq, params SessionChatParams) (*SessionChatOK, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(*SessionChatOK), args.Error(1)
+}
+
+func (m *MockHandler) SessionCommand(ctx context.Context, req OptSessionCommandReq, params SessionCommandParams) (*SessionCommandOK, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(*SessionCommandOK), args.Error(1)
+}
+
+func (m *MockHandler) SessionCreate(ctx context.Context, req OptSessionCreateReq) (SessionCreateRes, error) {
+	// Return variants: full Session with time.Now(), OptString{Set:true, Value:"v1"}
+	title := "Test Session"
+	if req.Set && req.Value.Title.Set {
+		title = req.Value.Title.Value
+	}
+	return &Session{
+		ID:      "mock-session",
+		Title:   title,
+		Version: "1.0",
+		Time: SessionTime{
+			Created: float64(time.Now().Unix()),
+		},
+	}, nil
+}
+
+func (m *MockHandler) SessionDelete(ctx context.Context, params SessionDeleteParams) (bool, error) {
+	args := m.Called(ctx, params)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) SessionGet(ctx context.Context, params SessionGetParams) (*Session, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionInit(ctx context.Context, req OptSessionInitReq, params SessionInitParams) (bool, error) {
+	args := m.Called(ctx, req, params)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) SessionMessage(ctx context.Context, params SessionMessageParams) (*SessionMessageOK, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*SessionMessageOK), args.Error(1)
+}
+
+func (m *MockHandler) SessionList(ctx context.Context) ([]Session, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionChildren(ctx context.Context, params SessionChildrenParams) ([]Session, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).([]Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionMessages(ctx context.Context, params SessionMessagesParams) ([]SessionMessagesOKItem, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).([]SessionMessagesOKItem), args.Error(1)
+}
+
+func (m *MockHandler) SessionRevert(ctx context.Context, req OptSessionRevertReq, params SessionRevertParams) (*Session, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionShare(ctx context.Context, params SessionShareParams) (*Session, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionShell(ctx context.Context, req OptSessionShellReq, params SessionShellParams) (*AssistantMessage, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(*AssistantMessage), args.Error(1)
+}
+
+func (m *MockHandler) SessionSummarize(ctx context.Context, req OptSessionSummarizeReq, params SessionSummarizeParams) (bool, error) {
+	args := m.Called(ctx, req, params)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) SessionUnrevert(ctx context.Context, params SessionUnrevertParams) (*Session, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionUnshare(ctx context.Context, params SessionUnshareParams) (*Session, error) {
+	args := m.Called(ctx, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) SessionUpdate(ctx context.Context, req OptSessionUpdateReq, params SessionUpdateParams) (*Session, error) {
+	args := m.Called(ctx, req, params)
+	return args.Get(0).(*Session), args.Error(1)
+}
+
+func (m *MockHandler) TuiAppendPrompt(ctx context.Context, req OptTuiAppendPromptReq) (bool, error) {
+	args := m.Called(ctx, req)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiClearPrompt(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiExecuteCommand(ctx context.Context, req OptTuiExecuteCommandReq) (bool, error) {
+	args := m.Called(ctx, req)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiOpenHelp(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiOpenModels(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiOpenSessions(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiOpenThemes(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiShowToast(ctx context.Context, req OptTuiShowToastReq) (bool, error) {
+	args := m.Called(ctx, req)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockHandler) TuiSubmitPrompt(ctx context.Context) (bool, error) {
+	args := m.Called(ctx)
+	return args.Bool(0), args.Error(1)
 }

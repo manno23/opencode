@@ -58,7 +58,7 @@ TUI code (e.g., `internal/tui/tui.go`) injects the facade client and remains unc
 
 - **Authoritative Spec**: `packages/tui/api/openapi.json` (generated via `bun run generate` or `opencode generate` from server).
 - **Custom Overlay**: `packages/tui/api/openapi.yaml` (manual additions: x-ogen-\*, discriminators for unions, operation grouping).
-- **Merged Spec**: `packages/tui/api/unified-openapi.yaml` (build artifact; .gitignore'd) – combine JSON base + YAML deltas using jq/yq or a Go merger.
+- **Merged Spec**: `packages/tui/api/unified-openapi.yaml` (build artifact; .gitignore'd) – combine JSON base + YAML deltas using yq4 (mikefarah/yq version 4).
 - **Ogen Config**: `packages/tui/api/ogen.yml` (e.g., `ptr-for-objects: true`, `features: {std-errors: true, client: true}`).
 - **Generation**: `packages/tui/api/generate.go` with `//go:generate ogen --clean --config ./ogen.yml --target ./ogen --package api ./unified-openapi.yaml`.
 - **Layout**:

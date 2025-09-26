@@ -1,0 +1,32 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.FilePartSource
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/FileSource"
+        - $ref: "#/components/schemas/SymbolSource"
+      x-ogen-sum-type:
+        discriminator: type
+        mapping:
+          file:   "#/components/schemas/FileSource"
+          symbol: "#/components/schemas/SymbolSource"
+
+  - target: $.components.schemas.FileSource
+    update:
+      x-ogen-name: FileSource
+      type: object
+      required: [type, path]
+      properties:
+        type: { type: string, enum: [file] }
+        path: { type: string }
+
+  - target: $.components.schemas.SymbolSource
+    update:
+      x-ogen-name: SymbolSource
+      type: object
+      required: [type, symbol]
+      properties:
+        type:   { type: string, enum: [symbol] }
+        symbol: { type: string }
+

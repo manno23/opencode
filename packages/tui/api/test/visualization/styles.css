@@ -1,0 +1,87 @@
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --node-fill: #69b3a2;
+  --link-stroke: #999;
+  --highlight-color: #ff6b6b;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+.tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#sankey-container svg {
+  cursor: grab;
+}
+
+#sankey-container svg:active {
+  cursor: grabbing;
+}
+
+.node rect {
+  fill: var(--node-fill);
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.node:hover rect {
+  fill: var(--highlight-color);
+}
+
+.link {
+  fill: none;
+  stroke: var(--link-stroke);
+  stroke-opacity: 0.5;
+}
+
+.link:hover {
+  stroke-opacity: 1;
+  stroke: var(--primary-color);
+}
+
+.highlighted .link {
+  stroke-opacity: 0.1;
+}
+
+.highlighted .link.highlight {
+  stroke-opacity: 1;
+  stroke: var(--highlight-color);
+}
+
+.highlighted .node rect {
+  opacity: 0.3;
+}
+
+.highlighted .node.highlight rect {
+  opacity: 1;
+  fill: var(--highlight-color);
+}
+
+@media (max-width: 768px) {
+  #sankey-container svg {
+    height: 400px;
+  }
+  .row > div {
+    margin-bottom: 1rem;
+  }
+}

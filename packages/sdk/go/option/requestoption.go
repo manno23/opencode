@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
+	"github.com/sst/opencode/sdk/go/internal/requestconfig"
 	"github.com/tidwall/sjson"
 )
 

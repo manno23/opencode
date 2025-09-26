@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+
+<!-- ### How to Use -->
+<!-- 1. **Save and Open**: Copy the code into a file named `index.html` and open it in a modern browser (Chrome/Firefox recommended for D3). -->
+<!-- 2. **Navigation**: -->
+<!--    - The tree starts collapsed; click nodes to expand (e.g., "Core Session/Messaging" → "Session"). -->
+<!--    - Hover over a node (e.g., "Session") to see a tooltip with TUI → Ogen details, transformation, serialization, and relevance. -->
+<!--    - Zoom/pan as described in the help panel. -->
+<!-- 3. **Customization**: -->
+<!--    - **Data**: Edit `buildTree()` in the `<script>` to add/modify nodes (uses real types like `Session`, `OptFloat64` from the summary). -->
+<!--    - **Templates**: Modify `tooltipTemplate` for more details (e.g., add code snippets). -->
+<!--    - **Styling**: Adjust CSS for colors/fonts. -->
+<!--    - **Versions**: If needed, add a toggle like the inspiration (e.g., param `?view=tui` to switch trees). -->
+<!-- 4. **Dependencies**: All loaded via CDN (no local files needed). If offline, download D3/Handlebars/Bootstrap and link locally. -->
+<!-- 5. **Limitations/Adaptations**: Simplified from the full OpenAPI Map (no marked.js for Markdown, no multi-version changelog). Focuses on your transformation data. Tree is radial/hierarchical like the inspiration but linear for simplicity. Covers all relevant instances from the summary. -->
+<!---->
+<!-- This visualization makes the transformations easy to explore—let me know if you need enhancements (e.g., more nodes, export to SVG, or integration with the actual codebase)! -->
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="Visualization of TUI to Ogen Type Transformations">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TUI to Ogen Type Transformations Map</title>
+    <!-- Icons (optional, from inspiration) -->
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" sizes="32x32">
+    <!-- Fonts/Icons -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <!-- Custom CSS (adapted from inspiration) -->
+    <style>
+      body { font-family: Arial, sans-serif; background: #f5f5f5; }
+      .title { background: #337ab7; color: white; padding: 10px 0; }
+      .navbar-brand { color: white !important; }
+      #tree-container { height: 600px; border: 1px solid #ddd; background: white; overflow: hidden; }
+      #tooltip-container { padding: 10px; }
+      #tooltip { position: absolute; background: white; border: 1px solid #ccc; padding: 10px; max-width: 300px; z-index: 10; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+      .node { cursor: pointer; }
+      .node circle { fill: #fff; stroke: steelblue; stroke-width: 3px; }
+      .node.tui circle { stroke: #007bff; } /* Blue for TUI */
+      .node.ogen circle { stroke: #28a745; } /* Green for Ogen */
+      .node.category circle { stroke: #6c757d; } /* Gray for categories */
+      .node text { font: 12px sans-serif; }
+      .link { fill: none; stroke: #ccc; stroke-width: 2px; }
+      .alert { margin: 10px 0; }
+      .footer { text-align: center; padding: 20px; color: #666; }
+      #help { margin-top: 20px; }
+      #help h1, #help h2 { color: #333; }
+      #help table { font-size: 14px; }
+    </style>
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Handlebars.js -->
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.8/dist/handlebars.min.js"></script>
+  </head>
+  <body>
+    <!-- Header (adapted) -->
+    <div class="title container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <nav class="navbar full">
+            <div class="container-fluid">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+                  <span class="sr-only">Toggle navigation</span>
+                  <i class="fa fa-bars fa-2x"></i>
+                </button>
+                <a class="navbar-brand" href="javascript:location.reload()">
+                  <i class="fa fa-sitemap"></i> TUI to Ogen Transformations Map
+                </a>
+              </div>
+              <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                  <li><a href="javascript:showHelp()">Help</a></li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container-fluid">
+      <div class="row">
+        <div id="tree-container" class="col-md-7"></div>
+        <div id="tooltip-container" class="col-md-5">
+          <div id="tooltip"></div>
+          <div id="help" style="display: none;">
+            <a class="github-ribbon" target="_blank" href="https://example.com" style="display: none;"><img src="data:image/png;base64,..."> Fork me</a>
+            <h1>TUI to Ogen Transformations Map</h1>
+            <p>This visualization shows transformations from TUI/Internal types to Ogen-generated types based on the OpenAPI spec. Inspired by OpenAPI Map.</p>
+            <div class="alert alert-info">
+              <i class="fa fa-info-circle fa-2x"></i> Covers ~40 relevant schemas (e.g., Session, Message, Part). Hover for details on Opt* wrappers, unions, serialization.
+            </div>
+            <h2>Controls</h2>
+            <table class="table table-striped table-bordered table-condensed">
+              <tr><td><i class="fa fa-search-plus fa-2x"></i></td><td>Mouse scroll up to zoom in</td></tr>
+              <tr><td><i class="fa fa-search-minus fa-2x"></i></td><td>Mouse scroll down to zoom out</td></tr>
+              <tr><td><i class="fa fa-arrows-alt fa-2x"></i></td><td>Mouse drag to move viewpoint</td></tr>
+              <tr><td><i class="far fa-hand-pointer fa-2x"></i></td><td>Move mouse over node to show transformation details</td></tr>
+              <tr><td><i class="fa fa-folder-open fa-2x"></i></td><td>Click on node to expand or collapse</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="footer col-md-12">
+          <p class="text-center">Generated from OpenAPI spec analysis | Real types: Session, Message, Part, Config, etc.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (for Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+
+    <!-- Custom JS (inline for self-contained) -->
+    <script>
+      // templates.js: Handlebars templates
+      const nodeTemplate = Handlebars.compile('<tspan>{{name}}</tspan>');
+      const tooltipTemplate = Handlebars.compile(
+        '<div class="tooltip-inner">' +
+        '  <h4>{{name}}</h4>' +
+        '  <p><strong>TUI/Internal:</strong> {{tuiType}} (e.g., raw fields like ID string, Time map[float64])</p>' +
+        '  <p><strong>Ogen:</strong> {{ogenType}} (e.g., Opt* wrappers: ID string (regex ^ses-), Time SessionTime{Created OptFloat64})</p>' +
+        '  <p><strong>Transformation:</strong> {{transformation}} (e.g., raw floats → OptFloat64; jx omits unset)</p>' +
+        '  <p><strong>Serialization:</strong> {{serialization}} (e.g., unions via discriminator Role; validates enums)</p>' +
+        '  <p><strong>Relevance:</strong> {{relevance}}</p>' +
+        '</div>'
+      );
+
+      // buildTree.js: Build tree data (hardcoded from summary; real types)
+      function buildTree() {
+        return {
+          name: "Type Transformations: TUI to Ogen",
+          type: "category",
+          children: [
+            {
+              name: "Core Session/Messaging",
+              type: "category",
+              children: [
+                {
+                  name: "Session",
+                  type: "tui",
+                  tuiType: "internal.Session (ID string, Title string, Time SessionTime{raw floats})",
+                  ogenType: "Session (ID string (regex ^ses-), Title OptString, Time SessionTime{OptFloat64})",
+                  transformation: "Direct fields → Opt* for optionals; add regex validation",
+                  serialization: "jx omits unset Opt; unions like Share as OptSessionShare",
+                  relevance: "Core for create/get/update (~10 ops)"
+                },
+                {
+                  name: "Message",
+                  type: "tui",
+                  tuiType: "internal.Message (role string, time map[float64]; union via interfaces)",
+                  ogenType: "Message (sum type by Role: UserMessage/AssistantMessage; Time MessageTime{OptFloat64})",
+                  transformation: "Interfaces → discriminated sum (Role 'user'/'assistant'); wrap errors as sum (ProviderAuthError etc.)",
+                  serialization: "jx selects arm by discriminator; omits nil errors",
+                  relevance: "Central for chat/prompt (20% traffic)"
+                },
+                {
+                  name: "Part",
+                  type: "tui",
+                  tuiType: "internal.Part (type switch: TextPart raw Text string; FilePart map source)",
+                  ogenType: "Part (sum by Type: TextPart/FilePart/ToolPart; e.g., Text: string, Source OptFilePartSource union)",
+                  transformation: "Tags/interfaces → deep sum (9 variants); wrap sources/times in Opt unions",
+                  serialization: "jx discriminates by Type/Status; validates ranges (Start/End int64)",
+                  relevance: "Every message op; complex union for dynamic parts"
+                }
+              ]
+            },
+            {
+              name: "Configuration & Provider",
+              type: "category",
+              children: [
+                {
+                  name: "Config",
+                  type: "tui",
+                  tuiType: "internal.Config (nested maps for agent/provider; raw strings/enums)",
+                  ogenType: "Config (Theme OptString, Agent map[string]OptAgentConfig sum, Provider map[string]OptProvider)",
+                  transformation: "Maps → typed Opt structs; enums like permission 'ask' validated",
+                  serialization: "jx handles deep Opt nesting; omits unset maps",
+                  relevance: "Bootstraps app (config.get)"
+                },
+                {
+                  name: "Provider",
+                  type: "tui",
+                  tuiType: "internal.Provider (Name string, Models map[string]Model raw costs)",
+                  ogenType: "Provider (Models map[string]OptModel; Cost OptModelCost{Input/Output OptFloat64})",
+                  transformation: "Raw maps → OptModel with Opt metrics; add limits/costs as structs",
+                  serialization: "jx validates costs >0; serializes maps as objects",
+                  relevance: "Model selection (providers.list)"
+                }
+              ]
+            },
+            {
+              name: "File/Symbol/Find",
+              type: "category",
+              children: [
+                {
+                  name: "FileContent",
+                  type: "tui",
+                  tuiType: "internal.FileContent (Content string, Diff string raw)",
+                  ogenType: "FileContent (Content OptString, Patch OptFileContentPatch{Hunks []OptHunk})",
+                  transformation: "Raw strings → OptString; add nested Patch with OptInt lines",
+                  serialization: "jx escapes content; omits unset patch",
+                  relevance: "File ops (~10%; read with diffs)"
+                },
+                {
+                  name: "Symbol",
+                  type: "tui",
+                  tuiType: "internal.Symbol (Name string, Kind int, Location raw Position)",
+                  ogenType: "Symbol (Kind OptInt, Location OptSymbolLocation{Range OptRange{OptPosition}})",
+                  transformation: "Raw positions → nested OptPosition/OptRange",
+                  serialization: "jx validates kind enum; nests for LSP compliance",
+                  relevance: "Search ops (find.symbols)"
+                },
+                {
+                  name: "File",
+                  type: "tui",
+                  tuiType: "[]internal.File (Path string, Added int raw)",
+                  ogenType: "[]File (Path string, Added OptInt64, Status OptFileStatus enum)",
+                  transformation: "Raw ints → OptInt64; add enum status",
+                  serialization: "jx uses enum strings; validates deltas >=0",
+                  relevance: "Git status (file.status)"
+                }
+              ]
+            },
+            {
+              name: "Auth & Event",
+              type: "category",
+              children: [
+                {
+                  name: "Auth",
+                  type: "tui",
+                  tuiType: "internal.Auth (Type string, raw tokens like Refresh string)",
+                  ogenType: "Auth (sum by Type: OAuthAuth/ApiAuth/WellKnownAuth; e.g., Refresh OptString)",
+                  transformation: "Variants → discriminated sum (Type 'oauth' etc.); wrap tokens in OptString",
+                  serialization: "jx selects by Type; no masking (add manually if needed)",
+                  relevance: "Security (auth.set)"
+                },
+                {
+                  name: "Event",
+                  type: "tui",
+                  tuiType: "internal.Event (Type string, Properties map[string]any tagged)",
+                  ogenType: "Event (sum by Type: e.g., MessageUpdatedEvent{Properties OptEventMessageUpdatedProperties{Info OptMessage}})",
+                  transformation: "Maps/tags → deep sum (~15 variants); all nested Opt",
+                  serialization: "jx discriminates deeply (Type/Name); validates patterns like ^msg-",
+                  relevance: "Streaming (~15 variants; event.subscribe)"
+                }
+              ]
+            },
+            {
+              name: "Other (Commands, TUI, Permission, Error)",
+              type: "category",
+              children: [
+                {
+                  name: "Command",
+                  type: "tui",
+                  tuiType: "internal.Command (Name string, Template string raw)",
+                  ogenType: "Command (Name string, Template string, Description OptString, Subtask OptBool)",
+                  transformation: "Raw → Opt for optional fields like Description",
+                  serialization: "jx validates required Template",
+                  relevance: "Commands (command.list)"
+                },
+                {
+                  name: "Tui Types (e.g., TuiAppendPromptReq)",
+                  type: "tui",
+                  tuiType: "internal.TuiReq (Text string raw)",
+                  ogenType: "TuiAppendPromptReq (Text OptString; Variant OptString enum)",
+                  transformation: "Simple structs → OptString/enums",
+                  serialization: "jx omits unset; validates enums like 'info'",
+                  relevance: "TUI ops (append-prompt, showToast)"
+                },
+                {
+                  name: "Permission",
+                  type: "tui",
+                  tuiType: "internal.Permission (ID string, Type string, Pattern []string raw)",
+                  ogenType: "Permission (ID string, Pattern OptStringOrArrayString, Time PermissionTime{OptFloat64})",
+                  transformation: "Arrays → Opt union (string or []string)",
+                  serialization: "jx handles union; validates ID patterns",
+                  relevance: "Permissions (postSession...)"
+                },
+                {
+                  name: "Error",
+                  type: "tui",
+                  tuiType: "internal.Error (Data map[string]any generic)",
+                  ogenType: "Error (Data map[string]any)",
+                  transformation: "Generic map → same (no Opt needed)",
+                  serialization: "jx handles arbitrary JSON",
+                  relevance: "Global errors (400/500 responses)"
+                }
+              ]
+            }
+          ]
+        };
+      }
+
+      // drawTree.js: D3 tree drawing
+      let treeLayout, svg, root, nodes, links;
+      const margin = {top: 20, right: 120, bottom: 20, left: 120};
+      const width = 960 - margin.right - margin.left;
+      const height = 600 - margin.top - margin.bottom;
+
+      function drawTree(data) {
+        const container = d3.select("#tree-container");
+        container.selectAll("*").remove(); // Clear previous
+
+        svg = container.append("svg")
+          .attr("width", width + margin.right + margin.left)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        root = d3.hierarchy(data);
+        root.x0 = height / 2;
+        root.y0 = 0;
+
+        treeLayout = d3.tree().size([height, width]);
+        update(root);
+      }
+
+      function update(source) {
+        const treeData = treeLayout(root);
+        nodes = treeData.descendants();
+        links = treeData.descendants().slice(1);
+
+        // Links
+        const link = svg.selectAll(".link")
+          .data(links, d => d.id || (d.id = ++i));
+
+        const linkEnter = link.enter().append("path")
+          .attr("class", "link")
+          .attr("d", d => {
+            const o = {x: source.x0, y: source.y0};
+            return diagonal(o, o);
+          });
+
+        link.merge(linkEnter).transition().duration(750)
+          .attr("d", d => diagonal(d, d.parent));
+
+        link.exit().transition().duration(750)
+          .attr("d", d => {
+            const o = {x: source.x0, y: source.y0};
+            return diagonal(o, o);
+          })
+          .remove();
+
+        // Nodes
+        const node = svg.selectAll(".node")
+          .data(nodes, d => d.id || (d.id = ++i));
+
+        const nodeEnter = node.enter().append("g")
+          .attr("class", d => `node ${d.data.type}`)
+          .attr("transform", d => `translate(${source.y0},${source.x0})`)
+          .on("click", click)
+          .on("mouseover", showTooltip)
+          .on("mouseout", hideTooltip);
+
+        nodeEnter.append("circle")
+          .attr("r", 10)
+          .attr("class", d => d.data.type);
+
+        nodeEnter.append("text")
+          .attr("dy", ".35em")
+          .attr("x", d => d.children || d._children ? -13 : 13)
+          .attr("text-anchor", d => d.children || d._children ? "end" : "start")
+          .text(d => nodeTemplate(d.data))
+          .style("fill-opacity", 1);
+
+        const nodeUpdate = nodeEnter.merge(node);
+        nodeUpdate.transition().duration(750)
+          .attr("transform", d => `translate(${d.y},${d.x})`);
+
+        nodeUpdate.select("text").style("fill-opacity", 1);
+
+        const nodeExit = node.exit().transition().duration(750)
+          .attr("transform", d => `translate(${source.y},${source.x})`)
+          .remove();
+
+        nodeExit.select("circle").attr("r", 1e-6);
+        nodeExit.select("text").style("fill-opacity", 1e-6);
+
+        nodes.forEach(d => {
+          d.x0 = d.x;
+          d.y0 = d.y;
+        });
+      }
+
+      function click(event, d) {
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
+        }
+        update(d);
+      }
+
+      function diagonal(s, d) {
+        return `M ${s.y} ${s.x}
+                C ${(s.y + d.y) / 2} ${s.x},
+                  ${(s.y + d.y) / 2} ${d.x},
+                  ${d.y} ${d.x}`;
+      }
+
+      let tooltipDiv;
+      function showTooltip(event, d) {
+        if (!tooltipDiv) {
+          tooltipDiv = d3.select("body").append("div")
+            .attr("id", "tooltip")
+            .style("opacity", 0)
+            .html(tooltipTemplate(d.data));
+        }
+        tooltipDiv.transition().duration(200).style("opacity", .9);
+        tooltipDiv.style("left", (event.pageX + 10) + "px")
+                  .style("top", (event.pageY - 28) + "px")
+                  .style("display", "block");
+      }
+
+      function hideTooltip() {
+        if (tooltipDiv) {
+          tooltipDiv.transition().duration(500).style("opacity", 0).style("display", "none");
+        }
+      }
+
+      // main.js: Initialization
+      let i = 0;
+      function init() {
+        const treeData = buildTree();
+        drawTree(treeData);
+        document.getElementById('help').style.display = 'block';
+      }
+
+      function showHelp() {
+        document.getElementById('help').style.display = 'block';
+      }
+
+      // Load on DOM ready
+      document.addEventListener('DOMContentLoaded', init);
+
+      // Zoom/Pan (adapted from inspiration)
+      const zoom = d3.zoom()
+        .on("zoom", event => svg.attr("transform", event.transform));
+      d3.select("#tree-container").call(zoom);
+    </script>
+  </body>
+</html>

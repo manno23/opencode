@@ -1,0 +1,413 @@
+{
+  "path": "/experimental/tool",
+  "method": "get",
+  "operationId": "tool.list",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session",
+  "method": "post",
+  "operationId": "session.create",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}",
+  "method": "get",
+  "operationId": "session.get",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}",
+  "method": "delete",
+  "operationId": "session.delete",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}",
+  "method": "patch",
+  "operationId": "session.update",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/children",
+  "method": "get",
+  "operationId": "session.children",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/init",
+  "method": "post",
+  "operationId": "session.init",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/abort",
+  "method": "post",
+  "operationId": "session.abort",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/share",
+  "method": "post",
+  "operationId": "session.share",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/share",
+  "method": "delete",
+  "operationId": "session.unshare",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/summarize",
+  "method": "post",
+  "operationId": "session.summarize",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/message",
+  "method": "get",
+  "operationId": "session.messages",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/message",
+  "method": "post",
+  "operationId": "session.prompt",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/message/{messageID}",
+  "method": "get",
+  "operationId": "session.message",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/command",
+  "method": "post",
+  "operationId": "session.command",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/shell",
+  "method": "post",
+  "operationId": "session.shell",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/revert",
+  "method": "post",
+  "operationId": "session.revert",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/unrevert",
+  "method": "post",
+  "operationId": "session.unrevert",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/session/{id}/permissions/{permissionID}",
+  "method": "post",
+  "operationId": "postSession:idPermissions:permissionID",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/find",
+  "method": "get",
+  "operationId": "find.text",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    },
+    {
+      "in": "query",
+      "name": "pattern",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/find/file",
+  "method": "get",
+  "operationId": "find.files",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/find/symbol",
+  "method": "get",
+  "operationId": "find.symbols",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/file",
+  "method": "get",
+  "operationId": "file.list",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/file/content",
+  "method": "get",
+  "operationId": "file.read",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/log",
+  "method": "post",
+  "operationId": "app.log",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/tui/append-prompt",
+  "method": "post",
+  "operationId": "tui.appendPrompt",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/tui/execute-command",
+  "method": "post",
+  "operationId": "tui.executeCommand",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/tui/show-toast",
+  "method": "post",
+  "operationId": "tui.showToast",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}
+{
+  "path": "/auth/{id}",
+  "method": "put",
+  "operationId": "auth.set",
+  "duplicates": [
+    {
+      "in": "query",
+      "name": "directory",
+      "sources": [
+        "op"
+      ]
+    }
+  ]
+}

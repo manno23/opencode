@@ -1,0 +1,38 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.Part
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/TextPart"
+        - $ref: "#/components/schemas/ReasoningPart"
+        - $ref: "#/components/schemas/FilePart"
+        - $ref: "#/components/schemas/ToolPart"
+        - $ref: "#/components/schemas/StepStartPart"
+        - $ref: "#/components/schemas/StepFinishPart"
+        - $ref: "#/components/schemas/SnapshotPart"
+        - $ref: "#/components/schemas/PatchPart"
+        - $ref: "#/components/schemas/AgentPart"
+      x-ogen-sum-type:
+        discriminator: type
+        mapping:
+          text:       "#/components/schemas/TextPart"
+          reasoning:  "#/components/schemas/ReasoningPart"
+          file:       "#/components/schemas/FilePart"
+          tool:       "#/components/schemas/ToolPart"
+          stepStart:  "#/components/schemas/StepStartPart"
+          stepFinish: "#/components/schemas/StepFinishPart"
+          snapshot:   "#/components/schemas/SnapshotPart"
+          patch:      "#/components/schemas/PatchPart"
+          agent:      "#/components/schemas/AgentPart"
+
+  # Example for one branch; repeat similarly for the rest.
+  - target: $.components.schemas.TextPart
+    update:
+      x-ogen-name: TextPart
+      type: object
+      required: [type, text]
+      properties:
+        type: { type: string, enum: [text] }
+        text: { type: string }
+

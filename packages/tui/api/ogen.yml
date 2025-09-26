@@ -4,6 +4,10 @@ parser:
   depth_limit: 1000
 
 generator:
+  filters:
+    path_regex: ".*"
+    methods: [GET, POST, PUT, PATCH, DELETE]
+  ignore_not_implemented: ["sum types with same names", "complex anyOf"]
   features:
     disable_all: true # start clean
     enable:
@@ -16,8 +20,3 @@ generator:
       - "ogen/unimplemented"
       - "debug/example_tests"
 
-  filters: # keep every path/method (default)
-    path_regex: ".*"
-    methods: [GET, POST, PUT, PATCH, DELETE]
-
-  ignore_not_implemented: ["sum types with same names"]

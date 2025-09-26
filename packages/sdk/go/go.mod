@@ -1,4 +1,4 @@
-module github.com/sst/opencode-sdk-go
+module github.com/sst/opencode/sdk/go
 
 go 1.21
 

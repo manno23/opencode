@@ -1,0 +1,10 @@
+[
+  {
+    "media_type": "application/json",
+    "count": 51
+  },
+  {
+    "media_type": "text/event-stream",
+    "count": 1
+  }
+]

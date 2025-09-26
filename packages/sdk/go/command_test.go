@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/internal/testutil"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/sst/opencode/sdk/go"
+	"github.com/sst/opencode/sdk/go/internal/testutil"
+	"github.com/sst/opencode/sdk/go/option"
 )
 
 func TestCommandListWithOptionalParams(t *testing.T) {

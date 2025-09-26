@@ -1,0 +1,100 @@
+overlay: 1.0.0
+info:
+  title: Ogen Compatibility Fixes
+  version: "2025-09-25"
+extends: ./openapi.base.yaml
+
+actions:
+  # 1. Add a default response to operations missing it
+  - target: $.paths.*.*.responses
+    update:
+      default:
+        description: Generic error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponse"
+
+  # 2. Define ErrorResponse schema if missing
+  - target: $.components.schemas
+    update:
+      ErrorResponse:
+        type: object
+        properties:
+          error:
+            type: string
+          details:
+            type: string
+
+  # 3. Patch undefined items with explicit array/map types
+  - target: $.components.schemas
+    update:
+      ErrorDataItem:
+        type: object
+        additionalProperties: true
+        x-ogen-map:
+          key: string
+          value: any
+
+      ModelOptionsItem:
+        type: object
+        x-ogen-map:
+          key: string
+          value:
+            type: string
+
+      AppLogReqExtraItem:
+        type: object
+        additionalProperties: true
+
+      ReasoningPartMetadataItem:
+        type: object
+        additionalProperties: true
+
+      ToolStateRunningInput:
+        type: object
+        properties:
+          state:
+            type: string
+          metadata:
+            $ref: "#/components/schemas/ToolStateRunningMetadataItem"
+
+      ToolStateRunningMetadataItem:
+        type: object
+        additionalProperties: true
+
+      ToolStateCompletedInputItem:
+        type: object
+        properties:
+          result:
+            type: string
+          metadata:
+            $ref: "#/components/schemas/ToolStateCompletedMetadataItem"
+
+      ToolStateCompletedMetadataItem:
+        type: object
+        additionalProperties: true
+
+      ToolStateErrorInputItem:
+        type: object
+        properties:
+          message:
+            type: string
+          metadata:
+            $ref: "#/components/schemas/ToolStateErrorMetadataItem"
+
+      ToolStateErrorMetadataItem:
+        type: object
+        additionalProperties: true
+
+  # 4. Handle sum types with same names
+  - target: $.components.schemas
+    update:
+      ToolState:
+        x-ogen-sum-type:
+          discriminator: kind
+          mapping:
+            running: "#/components/schemas/ToolStateRunningInput"
+            completed: "#/components/schemas/ToolStateCompletedInputItem"
+            error: "#/components/schemas/ToolStateErrorInputItem"
+

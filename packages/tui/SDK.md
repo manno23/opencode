@@ -60,6 +60,32 @@ CGO_ENABLED=0 go build -ldflags="-s -w -X main.Version=$(git describe --tags --a
 
 - During release, the opencode bundling step can still embed the TUI binary as before (see packages/opencode/README.md for reference build commands).
 
+## Testing
+
+The TUI SDK uses a comprehensive mock-based testing strategy for the ogen client and facade implementations to ensure high coverage and reliability.
+
+### Mock Strategy
+
+- **httptest.Server**: Use Go's httptest package to create mock HTTP servers with custom handlers that return schema-conformant JSON responses for valid requests and appropriate error responses for invalid cases.
+- **Dynamic Operation Enumeration**: Load the OpenAPI spec using kin-openapi and enumerate all paths and operations to test them dynamically.
+- **Test Variants**: For each operation, test multiple variants including valid inputs, invalid required fields, invalid enums, and edge cases.
+- **Facade Testing**: Use the same mock server infrastructure to test both Legacy and Ogen implementations of the facade clients, ensuring parity and correct switching.
+
+### Running Tests
+
+- Client tests: `go test ./api/ogen -v -cover`
+- Facade tests: `go test ./internal/app/client -v -cover`
+- Coverage goal: >80% for client, decode, and validate functions.
+
+### Coverage Goals
+
+Achieve comprehensive coverage on:
+
+- All client operations and their unmarshaling.
+- Validation errors for invalid inputs.
+- Facade switching between Legacy and Ogen implementations.
+- Schema compliance and edge cases.
+
 ## SDK generation with ogen
 
 - Use go:generate for reproducible SDK builds.
@@ -191,8 +217,179 @@ go generate ./...
 - Mark truly optional fields; avoid nullable where possible; prefer optional.\* wrappers.
 - Define error responses as structured schemas so ogen can emit typed errors.
 
+## Facade Pattern for SDK Migration
+
+To enable gradual migration from legacy SDK to ogen-generated SDK, we implement a facade pattern in `packages/tui/internal/app/client/`.
+
+### Structure
+
+- `client.go`: Unified Client struct with Sessions and Messages fields, selected via feature flags.
+- `sessions.go`: SessionsClient interface with methods like Create, List, Activate, Close.
+- `messages.go`: MessagesClient interface with Send and Stream methods.
+- `legacy_sessions.go`: LegacyImpl wrapping the existing Go SDK.
+- `legacy_messages.go`: LegacyImpl for messages.
+- `ogen_sessions.go`: Future OgenImpl (placeholder).
+
+### Usage
+
+```go
+client := NewClient(legacySDKClient)
+session, err := client.Sessions.Create(ctx, CreateSessionOpts{Name: "test"})
+messages := client.Messages.Stream(ctx, sessionID, "hello", nil)
+```
+
+### Migration Complete
+
+All domains now use OgenImpl by default, with legacy fallback on failure. Feature flags removed; use `TUI_SDK_USE_LEGACY=true` for full rollback if needed.
+
+This allows transparent switching without changing TUI code in `internal/app/app.go`.
+
+### OgenImpl for Sessions
+
+Implemented in `ogen_sessions.go`, it wraps the generated `api.Client` and provides:
+
+- **Type Mappings**: Maps `CreateSessionOpts` to `OptSessionCreateReq`, `[]Session` to `[]*Session`, etc.
+- **Auth**: Uses `OPENCODE_TOKEN` env var, added via custom `authTransport` RoundTripper for Bearer auth.
+- **Retries**: Basic exponential backoff for transient errors (max 3 retries, 100ms base delay).
+- **Methods**:
+  - `Create`: Calls `SessionCreate`, maps response.
+  - `List`: Calls `SessionList`, maps to slice of pointers.
+  - `Activate`: Placeholder (returns error "not implemented").
+  - `Close`: Calls `SessionAbort` for closing sessions.
+
+Enable with `TUI_SDK_EXPERIMENT_SESSIONS=true`. Falls back to legacy if token missing or client creation fails.
+
+### OgenImpl for Messages
+
+Implemented in `messages_ogen.go`, it wraps the generated `api.Client` and provides non-streaming and streaming parity:
+
+- **Non-Streaming Send**: Maps to `PostSessionIdMessage` (SessionMessageCreate), handling `OptMessageReq` for optional fields like parentID, tools. Returns `*Message` mapped from `MessageResponse`.
+- **Streaming Stream**: Uses SSE via HTTP client to `POST /sessions/{id}/messages` with `Accept: text/event-stream`. Parses `data:` lines into `*StreamEvent`, handling sum types with `IsX/AsX`. Supports context cancellation and reconnection.
+- **Auth and Retries**: Same as Sessions, with Bearer token and retry logic.
+- **Error Handling**: Typed errors like `MessageAbortedError`; maps to facade types.
+- **Feature Flag**: `TUI_SDK_EXPERIMENT_MESSAGES=true` enables in `client.go`.
+
+Streaming parity ensures event parsing matches legacy, with centralized reconnection in facade. If native SSE insufficient, fallback to manual parsing.
+
+### OgenImpl for Tools
+
+Implemented in `tools_ogen.go`, it wraps the generated `api.Client` and provides tool listing, invocation, and permission management:
+
+- **Type Mappings**: Maps facade `Tool`, `ToolResult`, `Permission` to/from ogen types like `ToolListItem`, `ToolInvokeRes`, `Permission`.
+- **Auth and Retries**: Same as Sessions and Messages, with Bearer token and exponential backoff.
+- **Methods**:
+  - `List`: Calls `ToolList`, maps to `[]*Tool`.
+  - `Invoke`: Calls `ToolInvoke` with JSON-marshaled params, maps response to `*ToolResult`.
+  - `GetPermissions`: Calls `SessionPermissions`, maps to `[]*Permission`.
+  - `RespondToPermission`: Calls `SessionPermissionRespond` with response enum.
+- **Feature Flag**: `TUI_SDK_EXPERIMENT_TOOLS=true` enables in `client.go`.
+
+Falls back to legacy if token missing or generation issues.
+
+### OgenImpl for Files
+
+Implemented in `files_ogen.go`, it wraps the generated `api.Client` and provides file upload, download, listing, deletion, and retrieval:
+
+- **Type Mappings**: Maps facade `File`, `FileMetadata` to/from ogen types like `File`, handling optional fields with `Opt*` types.
+- **Auth and Retries**: Same as other domains, with Bearer token and exponential backoff.
+- **Methods**:
+  - `Upload`: Calls `FileUpload` with multipart form data, maps response to `*File`.
+  - `Download`: Calls `FileDownload`, returns `io.ReadCloser`.
+  - `List`: Calls `FileList` with optional limit/offset, maps to `[]*File`.
+  - `Delete`: Calls `FileDelete`, returns error.
+  - `Get`: Calls `FileGet`, maps to `*File`.
+- **Feature Flag**: `TUI_SDK_EXPERIMENT_FILES=true` enables in `client.go`.
+
+Falls back to legacy if token missing or generation issues.
+
+### OgenImpl for Share
+
+Implemented in `share_ogen.go`, it wraps the generated `api.Client` and provides share link creation, fetching shared sessions, and revocation:
+
+- **Type Mappings**: Maps facade `ShareLink`, `Session` to/from ogen types like `ShareLink`, `Session`.
+- **Auth and Retries**: Same as other domains, with Bearer token and exponential backoff.
+- **Methods**:
+  - `Create`: Calls `SessionShareCreate`, maps response to `*ShareLink`.
+  - `Fetch`: Calls `ShareGet`, maps response to `*Session`.
+  - `Revoke`: Calls `SessionShareDelete`, returns error.
+- **Feature Flag**: `TUI_SDK_EXPERIMENT_SHARE=true` enables in `client.go`.
+
+Falls back to legacy if token missing or generation issues.
+
 ## Future work
 
 - Add retries with backoff and jitter in app/client for flaky network/SSE.
 - Add metrics/log hooks to the ogen client via RequestEditor and response middleware.
 - Evaluate generating both server and client from the same spec in a spec-first flow.
+
+
+MOdules
+- packages/tui/api : API 
+- packages/sdk/go : SDK
+- packages/sdk/go/option : SDK.option
+- packages/tui : OPENCODE
+
+├── sdk
+│   └── go
+│       ├── option         # I need to be able to import this into my module at API
+│       ├── packages
+│       ├── examples
+│       ├── internal
+│       ├── lib
+│       ├── shared
+│       ├── agent.go
+│       ├── aliases.go
+│       ├── app.go
+│       ├── client.go
+│       ├── command.go
+│       ├── config.go
+│       ├── event.go
+│       ├── field.go
+│       ├── file.go
+│       ├── find.go
+│       ├── path.go
+│       ├── project.go
+│       ├── session.go
+│       ├── sessionpermission.go
+│       ├── tui.go
+│       ├── go.mod
+│       └── scripts
+│
+└── tui                    # < github.com/sst/opencode >
+    ├── api                     # < github.com/sst/opencode-sdk-go > as API
+    │   ├── client
+    │   │   ├── client.go           package 'pkgapi'  wraps the  imports [SDK SDK/option SDK/internal/*] and [API/ogen],  presents it as  import (github.com/sst/opencode-sdk-go as opencode)
+    │   │   ├── adapter
+    │   │   │   ├── legacy.go       pkgapi.Legacy<function></function>(..)
+    │   │   │   └── ogen.go         pkgapi.Ogen<function>(..)
+    │   │   ├── option
+    │   │   │   └── request.go      
+    │   │   ├── sessions.go
+    │   │   └── types.go
+    │   │
+    │   ├── generate.go
+    │   ├── go.mod
+    │   ├── go.sum
+    │   ├── ogen
+    │   │   ├── <generated go code, package 'ogenapi'
+    │   ├── ogen.yml
+    │   ├── openapi.yaml
+    │   ├── spec
+    ├── cmd
+    │   └── opencode
+    │       └── main.go             package 'main'
+    │
+    ├── go.mod
+    ├── go.sum
+    ├── input
+    │   ├── go.mod
+    └── internal
+        ├── api
+        │   └── api.go
+        ├── app
+        │   ├── app.go
+        │   ├── prompt.go
+        │   ├──
+        │   └──
+        ├── ...
+        └── tui

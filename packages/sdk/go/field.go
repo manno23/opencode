@@ -1,7 +1,7 @@
 package opencode
 
 import (
-	"github.com/sst/opencode-sdk-go/internal/param"
+	"github.com/sst/opencode/sdk/go/internal/param"
 	"io"
 )
 

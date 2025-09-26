@@ -1,0 +1,8 @@
+{
+  "path": "/project",
+  "method": "get",
+  "operationId": "project.list",
+  "responses": [
+    "200"
+  ]
+}

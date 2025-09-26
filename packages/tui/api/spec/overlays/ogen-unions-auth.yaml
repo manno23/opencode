@@ -1,0 +1,43 @@
+overlay: 1.0.0
+extends: ./openapi.bundle.yaml
+actions:
+  - target: $.components.schemas.Auth
+    update:
+      oneOf:
+        - $ref: "#/components/schemas/OAuth"
+        - $ref: "#/components/schemas/ApiAuth"
+        - $ref: "#/components/schemas/WellKnownAuth"
+      x-ogen-sum-type:
+        discriminator: type
+        mapping:
+          oauth:      "#/components/schemas/OAuth"
+          api:        "#/components/schemas/ApiAuth"
+          wellKnown:  "#/components/schemas/WellKnownAuth"
+
+  - target: $.components.schemas.OAuth
+    update:
+      x-ogen-name: OAuth
+      type: object
+      required: [type, clientId]
+      properties:
+        type: { type: string, enum: [oauth] }
+        clientId: { type: string }
+
+  - target: $.components.schemas.ApiAuth
+    update:
+      x-ogen-name: ApiAuth
+      type: object
+      required: [type, token]
+      properties:
+        type:  { type: string, enum: [api] }
+        token: { type: string }
+
+  - target: $.components.schemas.WellKnownAuth
+    update:
+      x-ogen-name: WellKnownAuth
+      type: object
+      required: [type, url]
+      properties:
+        type: { type: string, enum: [wellKnown] }
+        url:  { type: string, format: uri }
+

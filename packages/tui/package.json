@@ -4,13 +4,31 @@
   "version": "0.0.0",
   "description": "OpenCode TUI application (Go-based UI; this package orchestrates spec generation and SDK codegen)",
   "scripts": {
-    "build": "make build",
-    "generate": "make sdk",
-    "spec": "make spec",
-    "merge": "make merge",
-    "clean": "make clean"
+    "spec": "bun run --cwd ../.. dev generate > api/spec/openapi.base.json",
+    "generate": "api/spec/fix-spec && go generate ./...",
+    "build": "go mod tidy && go get ./... && go build ./...",
+    "validate": "go run github.com/daveshanley/vacuum@latest dashboard api/openapi.fixed.json"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "openapi-types": "^12.1.3"
   },
   "devDependencies": {
-    "bun-types": "^1.0.0"
-  }
+    "bun-types": "^1.0.0",
+    "@types/node": "^20.8.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "openapi",
+    "swagger",
+    "api",
+    "ogen",
+    "typescript",
+    "validation",
+    "fix"
+  ]
 }
